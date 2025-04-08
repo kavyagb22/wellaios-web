@@ -1,0 +1,13 @@
+{
+  "extends": "./node_modules/gts/",
+  "settings": {
+    "node": {
+      "allowModules": [
+        "normalize.css",
+        "@blueprintjs/core",
+        "@blueprintjs/icons",
+        "three"
+      ]
+    }  
+  }
+}
