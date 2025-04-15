@@ -1,5 +1,5 @@
 import {Card, Spinner} from '@blueprintjs/core';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 import {ChatRoleType, MsgType} from '@/interface/msg';
@@ -21,7 +21,7 @@ const ChatHistory: React.FC<{
     }, [history]);
 
     return (
-        <ChatHistoryContainer ref={chatWinDiv} className="allow-scroll">
+        <ChatHistoryContainer ref={chatWinDiv}>
             <ChatHistoryListPane>
                 {history === undefined ? (
                     <Spinner />
@@ -59,7 +59,7 @@ const ChatItem: React.FC<{
         >
             {item.role === 'assistant' ? (
                 <>
-                    <MsgIcon $msgrole={item.role} />
+                    <MsgIcon $msgrole={item.role} $userPic={userPic} />
                     <MsgCard $msgrole={item.role}>
                         <div
                             style={{
@@ -114,7 +114,7 @@ const ChatItem: React.FC<{
                             {item.content}
                         </Markdown>
                     </MsgCard>
-                    <MsgIcon $msgrole={item.role} $userPic={userPic} />
+                    <MsgIcon $msgrole={item.role} />
                 </>
             )}
         </div>
@@ -164,6 +164,7 @@ const ChatHistoryContainer = styled.div`
         0% 0% no-repeat padding-box;
     opacity: 1;
     width: 100%;
+    min-width: 100%;
     height: 299px;
     align-items: center;
     position: relative;
@@ -187,6 +188,7 @@ const ChatHistoryListPane = styled.div`
     flex-direction: column;
     justify-content: flex-end;
     position: relative;
+    width: 100%;
     padding: 0px 8px;
 `;
 
