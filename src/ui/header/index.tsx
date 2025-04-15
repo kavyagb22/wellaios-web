@@ -15,6 +15,8 @@ const Header: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
 /* Styled components */
 
 const HeaderContainer = styled.div`
+    position: absolute;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;

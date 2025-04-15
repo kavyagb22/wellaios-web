@@ -1,12 +1,13 @@
 import type {AppProps} from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import '../styles/globals.css';
 
 function App({Component, pageProps}: AppProps) {
     return (
         <>
             <Head>
-                <title>WellAIOS Agent World</title>
+                <title>WellAIOS Web Agent</title>
             </Head>
             <Component {...pageProps} />
         </>

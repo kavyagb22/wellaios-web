@@ -43,12 +43,6 @@ const UserInputPane: React.FC<{
 /* Styled components */
 
 const UserInputPaneContainer = styled.div`
-    /*flex: 0;
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-bottom: 10px;
-    z-index: 4;
-    position: relative;*/
     height: 85px;
     background: #062e45 0% 0% no-repeat padding-box;
     opacity: 1;
