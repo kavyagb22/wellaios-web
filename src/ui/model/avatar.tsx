@@ -2,8 +2,9 @@ import {useFrame} from '@react-three/fiber';
 import {useEffect, useRef, useState} from 'react';
 import {Group, Object3DEventMap, AnimationClip, AnimationMixer} from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {VRM, VRMLoaderPlugin, VRMUtils} from '@pixiv/three-vrm';
+import {MToonMaterial, VRM, VRMLoaderPlugin, VRMUtils} from '@pixiv/three-vrm';
 import {loadMixamoAnimation} from './loadMixama';
+import * as THREE from 'three';
 
 const Avatar3D: React.FC<{
     talking: boolean;
@@ -33,6 +34,46 @@ const Avatar3D: React.FC<{
 
             vrm.scene.traverse(obj => {
                 obj.frustumCulled = false;
+            });
+
+            const toFindNames = new Set([
+                'N00_000_Hair_00_HAIR_07 (Instance)',
+                'N00_002_03_Tops_01_CLOTH_01 (Instance)',
+                'N00_002_03_Tops_01_CLOTH_01 (Instance) (Outline)',
+                'N00_002_03_Tops_01_CLOTH_02 (Instance)',
+                'N00_002_03_Tops_01_CLOTH_02 (Instance) (Outline)',
+                'N00_002_03_Tops_01_CLOTH_03 (Instance)',
+                'N00_002_03_Tops_01_CLOTH_03 (Instance) (Outline)',
+                'N00_007_01_Tops_01_CLOTH (Instance)',
+                'N00_007_01_Tops_01_CLOTH (Instance) (Outline)',
+                'N00_008_01_Shoes_01_CLOTH (Instance)',
+                'N00_008_01_Shoes_01_CLOTH (Instance) (Outline)',
+                'N00_010_01_Onepiece_00_CLOTH_01 (Instance)',
+                'N00_010_01_Onepiece_00_CLOTH_01 (Instance) (Outline)',
+                'N00_010_01_Onepiece_00_CLOTH_02 (Instance)',
+                'N00_010_01_Onepiece_00_CLOTH_02 (Instance) (Outline)',
+                'N00_010_01_Onepiece_00_CLOTH_03 (Instance)',
+                'N00_010_01_Onepiece_00_CLOTH_03 (Instance) (Outline)',
+            ]);
+
+            vrm.scene.traverse(object => {
+                if (object instanceof THREE.Mesh) {
+                    const mesh = object as THREE.Mesh;
+                    const materials = Array.isArray(mesh.material)
+                        ? mesh.material
+                        : [mesh.material];
+                    materials.forEach(material => {
+                        if (material instanceof MToonMaterial) {
+                            if (material.map) {
+                                if (toFindNames.has(material.name)) {
+                                    material.transparent = true;
+                                    material.blending = THREE.NormalBlending;
+                                    material.alphaToCoverage = true;
+                                }
+                            }
+                        }
+                    });
+                }
             });
 
             VRMUtils.rotateVRM0(vrm);
@@ -66,8 +107,8 @@ const Avatar3D: React.FC<{
     });
 
     return (
-        scene &&
-        idleAnimation && (
+        scene && (
+            // idleAnimation && (
             <group>
                 <primitive object={scene} />
             </group>
