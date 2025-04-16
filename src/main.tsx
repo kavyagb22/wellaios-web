@@ -56,6 +56,7 @@ const MainPage: React.FC = function () {
     };
 
     const talk = function (msg: string) {
+        console.log(`[INFO] Talking: ${talking}`);
         setTalking(t => t + 1);
         setTimeout(() => setTalking(t => t - 1), estimateSpeechDuration(msg));
     };
@@ -94,7 +95,7 @@ const MainPage: React.FC = function () {
                         }}
                     >
                         {agent.output.params.agent_img === '' ? (
-                            <Avatar3D talking={talking > 0} />
+                            <Avatar3D />
                         ) : (
                             <Image
                                 src={getImage(

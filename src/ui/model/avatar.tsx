@@ -29,20 +29,13 @@ const toFindNames = new Set([
     'N00_010_01_Onepiece_00_CLOTH_03 (Instance) (Outline)',
 ]);
 
-const Avatar3D: React.FC<{
-    talking: boolean;
-}> = function ({talking}) {
+const Avatar3D: React.FC = function () {
     const [scene, setScene] = useState<Group<Object3DEventMap> | undefined>(
         undefined
     );
-    const [idleAnimation, setIdleAnimation] = useState<
-        AnimationClip | undefined
-    >(undefined);
-    const [talkAnimation, setTalkAnimation] = useState<
-        AnimationClip | undefined
-    >(undefined);
-
-    const animation = talking ? talkAnimation : idleAnimation;
+    const [animation, setAnimation] = useState<AnimationClip | undefined>(
+        undefined
+    );
 
     useEffect(() => {
         const loader = new GLTFLoader();
@@ -81,8 +74,7 @@ const Avatar3D: React.FC<{
             setScene(vrm.scene);
 
             vrm.humanoid.resetNormalizedPose();
-            loadMixamoAnimation('animations/idle.fbx', vrm, setIdleAnimation);
-            loadMixamoAnimation('animations/talk.fbx', vrm, setTalkAnimation);
+            loadMixamoAnimation('animations/idle.fbx', vrm, setAnimation);
         });
     }, []);
 
