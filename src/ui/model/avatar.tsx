@@ -67,7 +67,7 @@ const Avatar3D: React.FC<{
 
     return (
         scene &&
-        mixerRef.current !== null && (
+        idleAnimation && (
             <group>
                 <primitive object={scene} />
             </group>
