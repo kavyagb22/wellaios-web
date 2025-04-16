@@ -212,7 +212,7 @@ const MsgIcon = styled.div<{$msgrole: ChatRoleType; $userPic?: string}>`
         $userPic
             ? `url(${$userPic}) center/cover no-repeat`
             : $msgrole === 'assistant'
-              ? `transparent url(${DEFAULT_IMAGES['agent_profile']}) center/cover no-repeat`
+              ? `transparent url(${DEFAULT_IMAGES['profile']}) center/cover no-repeat`
               : "#CFCFCF url('placeholder-icon.png') center/cover no-repeat"};
     opacity: 1;
 `;

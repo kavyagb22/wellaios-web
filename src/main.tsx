@@ -7,8 +7,6 @@ import {WebWELLAgent} from './interface/agent';
 import {getImage} from './control/utils/image';
 import {DEFAULT_IMAGES} from './config/constants';
 import Image from 'next/image';
-import {Canvas} from '@react-three/fiber';
-import {PerspectiveCamera} from '@react-three/drei';
 import Avatar3D from './ui/model/avatar';
 import LoadingPage from './loading';
 import {useSearchParams} from 'next/navigation';
@@ -96,26 +94,7 @@ const MainPage: React.FC = function () {
                         }}
                     >
                         {agent.output.params.agent_img === '' ? (
-                            <Canvas
-                                style={{
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                }}
-                            >
-                                <ambientLight intensity={2} color="#ddbbbb" />
-                                <pointLight
-                                    position={[0.5, 2, 1.3]}
-                                    intensity={5}
-                                    color="white"
-                                />
-                                <Avatar3D talking={talking > 0} />
-                                <PerspectiveCamera
-                                    makeDefault
-                                    position={[0, 0.8, 1]}
-                                    fov={75}
-                                />
-                            </Canvas>
+                            <Avatar3D talking={talking > 0} />
                         ) : (
                             <Image
                                 src={getImage(

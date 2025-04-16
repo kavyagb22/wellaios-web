@@ -5,6 +5,29 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MToonMaterial, VRM, VRMLoaderPlugin, VRMUtils} from '@pixiv/three-vrm';
 import {loadMixamoAnimation} from './loadMixama';
 import * as THREE from 'three';
+import {Canvas} from '@react-three/fiber';
+import {PerspectiveCamera} from '@react-three/drei';
+import {Spinner} from '@blueprintjs/core';
+
+const toFindNames = new Set([
+    'N00_000_Hair_00_HAIR_07 (Instance)',
+    'N00_002_03_Tops_01_CLOTH_01 (Instance)',
+    'N00_002_03_Tops_01_CLOTH_01 (Instance) (Outline)',
+    'N00_002_03_Tops_01_CLOTH_02 (Instance)',
+    'N00_002_03_Tops_01_CLOTH_02 (Instance) (Outline)',
+    'N00_002_03_Tops_01_CLOTH_03 (Instance)',
+    'N00_002_03_Tops_01_CLOTH_03 (Instance) (Outline)',
+    'N00_007_01_Tops_01_CLOTH (Instance)',
+    'N00_007_01_Tops_01_CLOTH (Instance) (Outline)',
+    'N00_008_01_Shoes_01_CLOTH (Instance)',
+    'N00_008_01_Shoes_01_CLOTH (Instance) (Outline)',
+    'N00_010_01_Onepiece_00_CLOTH_01 (Instance)',
+    'N00_010_01_Onepiece_00_CLOTH_01 (Instance) (Outline)',
+    'N00_010_01_Onepiece_00_CLOTH_02 (Instance)',
+    'N00_010_01_Onepiece_00_CLOTH_02 (Instance) (Outline)',
+    'N00_010_01_Onepiece_00_CLOTH_03 (Instance)',
+    'N00_010_01_Onepiece_00_CLOTH_03 (Instance) (Outline)',
+]);
 
 const Avatar3D: React.FC<{
     talking: boolean;
@@ -19,7 +42,7 @@ const Avatar3D: React.FC<{
         AnimationClip | undefined
     >(undefined);
 
-    const mixerRef = useRef<AnimationMixer | undefined>(undefined);
+    const animation = talking ? talkAnimation : idleAnimation;
 
     useEffect(() => {
         const loader = new GLTFLoader();
@@ -32,31 +55,8 @@ const Avatar3D: React.FC<{
             VRMUtils.combineSkeletons(gltf.scene);
             VRMUtils.combineMorphs(vrm);
 
-            vrm.scene.traverse(obj => {
-                obj.frustumCulled = false;
-            });
-
-            const toFindNames = new Set([
-                'N00_000_Hair_00_HAIR_07 (Instance)',
-                'N00_002_03_Tops_01_CLOTH_01 (Instance)',
-                'N00_002_03_Tops_01_CLOTH_01 (Instance) (Outline)',
-                'N00_002_03_Tops_01_CLOTH_02 (Instance)',
-                'N00_002_03_Tops_01_CLOTH_02 (Instance) (Outline)',
-                'N00_002_03_Tops_01_CLOTH_03 (Instance)',
-                'N00_002_03_Tops_01_CLOTH_03 (Instance) (Outline)',
-                'N00_007_01_Tops_01_CLOTH (Instance)',
-                'N00_007_01_Tops_01_CLOTH (Instance) (Outline)',
-                'N00_008_01_Shoes_01_CLOTH (Instance)',
-                'N00_008_01_Shoes_01_CLOTH (Instance) (Outline)',
-                'N00_010_01_Onepiece_00_CLOTH_01 (Instance)',
-                'N00_010_01_Onepiece_00_CLOTH_01 (Instance) (Outline)',
-                'N00_010_01_Onepiece_00_CLOTH_02 (Instance)',
-                'N00_010_01_Onepiece_00_CLOTH_02 (Instance) (Outline)',
-                'N00_010_01_Onepiece_00_CLOTH_03 (Instance)',
-                'N00_010_01_Onepiece_00_CLOTH_03 (Instance) (Outline)',
-            ]);
-
             vrm.scene.traverse(object => {
+                object.frustumCulled = false;
                 if (object instanceof THREE.Mesh) {
                     const mesh = object as THREE.Mesh;
                     const materials = Array.isArray(mesh.material)
@@ -86,19 +86,35 @@ const Avatar3D: React.FC<{
         });
     }, []);
 
+    return scene && animation ? (
+        <Canvas
+            style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+            }}
+        >
+            <ambientLight intensity={2} color="#ddbbbb" />
+            <pointLight position={[0.5, 2, 1.3]} intensity={5} color="white" />
+            <Avatar scene={scene} animation={animation} />
+            <PerspectiveCamera makeDefault position={[0, 0.8, 1]} fov={75} />
+        </Canvas>
+    ) : (
+        <Spinner size={100} />
+    );
+};
+
+const Avatar: React.FC<{
+    scene: Group<Object3DEventMap>;
+    animation: AnimationClip;
+}> = function ({scene, animation}) {
+    const mixerRef = useRef<AnimationMixer | undefined>(undefined);
+
     useEffect(() => {
-        if (scene !== undefined) {
-            if (talking && talkAnimation !== undefined) {
-                const newMixer = new AnimationMixer(scene);
-                mixerRef.current = newMixer;
-                mixerRef.current.clipAction(talkAnimation).play();
-            } else if (!talking && idleAnimation !== undefined) {
-                const newMixer = new AnimationMixer(scene);
-                mixerRef.current = newMixer;
-                mixerRef.current.clipAction(idleAnimation).play();
-            }
-        }
-    }, [scene, idleAnimation, talkAnimation, talking]);
+        const newMixer = new AnimationMixer(scene);
+        mixerRef.current = newMixer;
+        mixerRef.current.clipAction(animation).play();
+    }, [scene, animation]);
 
     useFrame((state, delta) => {
         if (mixerRef.current !== undefined) {
@@ -107,12 +123,9 @@ const Avatar3D: React.FC<{
     });
 
     return (
-        scene && (
-            // idleAnimation && (
-            <group>
-                <primitive object={scene} />
-            </group>
-        )
+        <group>
+            <primitive object={scene} />
+        </group>
     );
 };
 
