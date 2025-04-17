@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import {Canvas} from '@react-three/fiber';
 import {PerspectiveCamera} from '@react-three/drei';
 import {Spinner} from '@blueprintjs/core';
+import {getMedia} from '@/control/utils/media';
 
 const toFindNames = new Set([
     'N00_000_Hair_00_HAIR_07 (Instance)',
@@ -41,7 +42,7 @@ const Avatar3D: React.FC = function () {
         const loader = new GLTFLoader();
         loader.register(parser => new VRMLoaderPlugin(parser));
 
-        loader.load('models/model.vrm', gltf => {
+        loader.load(getMedia('app/models/sample.vrm'), gltf => {
             const vrm: VRM = gltf.userData.vrm;
 
             VRMUtils.removeUnnecessaryVertices(gltf.scene);
@@ -74,7 +75,11 @@ const Avatar3D: React.FC = function () {
             setScene(vrm.scene);
 
             vrm.humanoid.resetNormalizedPose();
-            loadMixamoAnimation('animations/idle.fbx', vrm, setAnimation);
+            loadMixamoAnimation(
+                getMedia('app/animation/sample-idle.fbx'),
+                vrm,
+                setAnimation
+            );
         });
     }, []);
 

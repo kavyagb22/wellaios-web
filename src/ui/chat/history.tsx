@@ -4,15 +4,18 @@ import Markdown from 'react-markdown';
 import styled from 'styled-components';
 import {ChatRoleType, MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
-import {getImage} from '@/control/utils/image';
 import {DEFAULT_IMAGES} from '@/config/constants';
+import {getMediaWithDefault} from '@/control/utils/media';
 
 const ChatHistory: React.FC<{
     history: MsgType[];
     agent: WebWELLAgent;
 }> = function ({history, agent}) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
-    const userPic = getImage(agent.meta.profile, DEFAULT_IMAGES['profile']);
+    const userPic = getMediaWithDefault(
+        agent.meta.profile,
+        DEFAULT_IMAGES['profile']
+    );
 
     useEffect(() => {
         if (chatWinDiv.current) {

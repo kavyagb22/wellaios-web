@@ -4,13 +4,13 @@ import ChatPane from './ui/chat/pane';
 import {WebRequestType} from './interface/api';
 import {fetchAPI} from './control/api';
 import {WebWELLAgent} from './interface/agent';
-import {getImage} from './control/utils/image';
 import {DEFAULT_IMAGES} from './config/constants';
 import Image from 'next/image';
 import Avatar3D from './ui/model/avatar';
 import LoadingPage from './loading';
 import {useSearchParams} from 'next/navigation';
 import NoAgentPage from './noagent';
+import {getMediaWithDefault} from './control/utils/media';
 
 function estimateSpeechDuration(message: string, wordsPerMinute = 150): number {
     if (!message) {
@@ -75,7 +75,7 @@ const MainPage: React.FC = function () {
                     }}
                 >
                     <Image
-                        src={getImage(
+                        src={getMediaWithDefault(
                             agent.output.params.background,
                             DEFAULT_IMAGES['bg']
                         )}
@@ -98,7 +98,7 @@ const MainPage: React.FC = function () {
                             <Avatar3D />
                         ) : (
                             <Image
-                                src={getImage(
+                                src={getMediaWithDefault(
                                     agent.output.params.agent_img,
                                     DEFAULT_IMAGES['agent']
                                 )}
