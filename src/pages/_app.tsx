@@ -8,6 +8,7 @@ function App({Component, pageProps}: AppProps) {
         <>
             <Head>
                 <title>WellAIOS Web Agent</title>
+                <link rel="icon" href="/favicon.png" />
             </Head>
             <Component {...pageProps} />
         </>

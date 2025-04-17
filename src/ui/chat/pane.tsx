@@ -71,7 +71,9 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
                 </div>
 
                 {isTyping > 0 && (
-                    <TypingIndicator>Agent is typing ... </TypingIndicator>
+                    <TypingIndicator>
+                        {agent.meta.name} is typing ...{' '}
+                    </TypingIndicator>
                 )}
 
                 <div style={{minHeight: '77px', width: '100vw'}}>
