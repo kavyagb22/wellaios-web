@@ -210,7 +210,7 @@ const MsgIcon = styled.div<{$msgrole: ChatRoleType; $userPic?: string}>`
     height: 30px;
     background: ${({$userPic, $msgrole}) =>
         $userPic
-            ? `url(${$userPic}) center/cover no-repeat`
+            ? `url(${$userPic}) top/cover no-repeat`
             : $msgrole === 'assistant'
               ? `transparent url(${DEFAULT_IMAGES['profile']}) center/cover no-repeat`
               : "#CFCFCF url('placeholder-icon.png') center/cover no-repeat"};
