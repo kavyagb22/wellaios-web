@@ -1,3 +1,4 @@
+import {getCurrentTS} from '@/control/helper';
 import {MsgType} from '@/interface/msg';
 import {useState} from 'react';
 import styled from 'styled-components';
@@ -12,6 +13,7 @@ const UserInputPane: React.FC<{
             addMessage({
                 role: 'user',
                 content: msg,
+                timestamp: getCurrentTS(),
             });
             setMsg('');
         }

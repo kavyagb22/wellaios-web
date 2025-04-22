@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import ChatHistory from './history';
 import UserInputPane from './chatinput';
 import {fetchAPI} from '@/control/api';
@@ -6,12 +6,17 @@ import styled from 'styled-components';
 import {MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
 import {WebChatRequestType, WebRequestType} from '@/interface/api';
+import {useHistory} from '@/control/hooks/localhistory';
+import {getCurrentTS} from '@/control/helper';
+import {motion} from 'framer-motion';
+
+const ErrorMsg = 'Failed to get a response. Please try again.';
 
 const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
     function ({agent, talk}) {
         const chatEndRef = useRef<HTMLDivElement | null>(null);
-        const [history, setHistory] = useState<MsgType[]>([]);
-        const [isTyping, setIsTyping] = useState<number>(0);
+        const {history, addMessage} = useHistory();
+        const [isTyping, setIsTyping] = useState<number>(1);
 
         const startTyping = () => setIsTyping(t => t + 1);
         const doneTyping = () => setIsTyping(t => Math.max(t - 1, 0));
@@ -23,13 +28,13 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
             }
         }, [history]);
 
-        const addMessage = function (msg: MsgType) {
-            setHistory(prev => {
-                const updatedHistory = [...prev, msg];
+        const addUserMessage = function (msg: MsgType) {
+            if (history !== undefined) {
+                const updatedHistory = [...history, msg];
                 const slicedHistory = updatedHistory.slice(-20); // keep latest 20
                 aiProcess(slicedHistory);
-                return updatedHistory;
-            });
+                addMessage(msg);
+            }
         };
 
         const aiProcess = async function (slicedHistory: MsgType[]) {
@@ -39,15 +44,29 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
                 msgs: slicedHistory,
             };
             const query: WebRequestType = {type: 'web_chat', task: payload};
-            const response = await fetchAPI(query);
-            doneTyping();
-            const msg = response.content || '...';
-            talk(msg);
-            const assistantMsg: MsgType = {
-                role: 'assistant',
-                content: msg,
-            };
-            setHistory(prev => [...prev, assistantMsg]);
+            fetchAPI(query)
+                .then(response => {
+                    const msg = response.content || '...';
+                    talk(msg);
+                    const assistantMsg: MsgType = {
+                        role: 'assistant',
+                        content: msg,
+                        timestamp: getCurrentTS(),
+                    };
+                    addMessage(assistantMsg);
+                })
+                .catch(error => {
+                    console.error(error);
+                    const assistantMsg: MsgType = {
+                        role: 'assistant',
+                        content: ErrorMsg,
+                        timestamp: getCurrentTS(),
+                    };
+                    addMessage(assistantMsg);
+                })
+                .finally(() => {
+                    doneTyping();
+                });
         };
 
         return (
@@ -67,17 +86,15 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
                 <div style={{width: '100vw', flex: 21}} />
 
                 <div style={{width: '100vw', minHeight: '299px'}}>
-                    <ChatHistory history={history} agent={agent} />
+                    {history !== undefined && (
+                        <ChatHistory history={history} agent={agent} />
+                    )}
                 </div>
 
-                {isTyping > 0 && (
-                    <TypingIndicator>
-                        {agent.meta.name} is typing ...{' '}
-                    </TypingIndicator>
-                )}
+                {isTyping > 0 && <TypingPane name={agent.meta.name} />}
 
                 <div style={{minHeight: '77px', width: '100vw'}}>
-                    <UserInputPane addMessage={addMessage} />
+                    <UserInputPane addMessage={addUserMessage} />
                 </div>
                 <style jsx>
                     {`
@@ -90,6 +107,34 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
         );
     };
 
+const TypingPane: React.FC<{name: string}> = function ({name}) {
+    return (
+        <TypingIndicator>
+            {name} is typing <AnimationDot delay={0} />
+            <AnimationDot delay={0.2} />
+            <AnimationDot delay={0.4} />
+        </TypingIndicator>
+    );
+};
+
+const AnimationDot: React.FC<{delay: number}> = function ({delay}) {
+    return (
+        <motion.div
+            animate={{
+                y: [0, -5, 0],
+                transition: {
+                    delay,
+                    repeat: Infinity,
+                    duration: 0.6,
+                    repeatDelay: 0.5,
+                },
+            }}
+        >
+            .
+        </motion.div>
+    );
+};
+
 const TypingIndicator = styled.div`
     background: #062e45;
     opacity: 1;
@@ -97,6 +142,8 @@ const TypingIndicator = styled.div`
     text-align: center;
     color: #ffffff;
     padding-top: 6px;
+    display: flex;
+    justify-content: center;
     font: normal normal medium 11px/15px Montserrat;
 `;
 
