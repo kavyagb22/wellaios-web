@@ -16,7 +16,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; talk: (x: string) => void}> =
     function ({agent, talk}) {
         const chatEndRef = useRef<HTMLDivElement | null>(null);
         const {history, addMessage} = useHistory();
-        const [isTyping, setIsTyping] = useState<number>(1);
+        const [isTyping, setIsTyping] = useState<number>(0);
 
         const startTyping = () => setIsTyping(t => t + 1);
         const doneTyping = () => setIsTyping(t => Math.max(t - 1, 0));
