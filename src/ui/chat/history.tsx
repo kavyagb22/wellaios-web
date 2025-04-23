@@ -71,6 +71,7 @@ const ChatItem: React.FC<{
                             }}
                         >
                             <Markdown
+                                className="flex-col"
                                 components={{
                                     strong: props => (
                                         <MsgBold>{props.children}</MsgBold>
