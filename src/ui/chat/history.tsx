@@ -1,21 +1,33 @@
-import {Card, Spinner} from '@blueprintjs/core';
-import {useEffect, useRef} from 'react';
+import {Card, Icon, Spinner} from '@blueprintjs/core';
+import {ReactNode, useEffect, useRef, useState} from 'react';
 import Markdown from 'react-markdown';
-import styled from 'styled-components';
 import {ChatRoleType, MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
+import Image from 'next/image';
+import AudioButton from './audiobutton';
 
 const ChatHistory: React.FC<{
     history: MsgType[];
     agent: WebWELLAgent;
-}> = function ({history, agent}) {
+    startTalking: () => void;
+    stopTalking: () => void;
+    talking: boolean;
+}> = function ({history, agent, startTalking, stopTalking, talking}) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
+    const [playingAudio, setPlayAudio] = useState<boolean>(false);
     const userPic = getMediaWithDefault(
         agent.meta.profile,
         DEFAULT_IMAGES['profile']
     );
+
+    const setPlayingAudio = function (x: boolean) {
+        setPlayAudio(x);
+        if (!x) {
+            stopTalking();
+        }
+    };
 
     useEffect(() => {
         if (chatWinDiv.current) {
@@ -24,24 +36,48 @@ const ChatHistory: React.FC<{
     }, [history]);
 
     return (
-        <ChatHistoryContainer ref={chatWinDiv}>
-            <ChatHistoryListPane>
-                {history === undefined ? (
-                    <Spinner />
-                ) : (
-                    history.map((x, i) => (
-                        <ChatItem key={i} item={x} userPic={userPic} />
-                    ))
-                )}
-            </ChatHistoryListPane>
-        </ChatHistoryContainer>
+        <div className="h-[100%] w-[100%] relative">
+            <div className="absolute inset-0 overflow-hidden flex flex-col justify-end">
+                <div
+                    className="flex flex-col px-[8px] overflow-y-auto"
+                    ref={chatWinDiv}
+                >
+                    {history === undefined ? (
+                        <Spinner />
+                    ) : (
+                        history.map((x, i) => (
+                            <ChatItem
+                                key={i}
+                                agent={agent.id}
+                                item={x}
+                                userPic={userPic}
+                                playingAudio={playingAudio}
+                                setPlayingAudio={setPlayingAudio}
+                                startTalking={startTalking}
+                            />
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
     );
 };
 
 const ChatItem: React.FC<{
+    agent: string;
     item: MsgType;
     userPic?: string;
-}> = function ({item, userPic}) {
+    playingAudio: boolean;
+    startTalking: () => void;
+    setPlayingAudio: (x: boolean) => void;
+}> = function ({
+    agent,
+    item,
+    userPic,
+    playingAudio,
+    startTalking,
+    setPlayingAudio,
+}) {
     const itemRef = useRef<HTMLDivElement | null>(null);
 
     return (
@@ -62,19 +98,16 @@ const ChatItem: React.FC<{
         >
             {item.role === 'assistant' ? (
                 <>
-                    <MsgIcon $msgrole={item.role} $userPic={userPic} />
-                    <MsgCard $msgrole={item.role}>
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
+                    <MsgIcon msgrole={item.role} userPic={userPic} />
+                    <MsgCard msgrole={item.role}>
+                        <div className="flex items-center">
                             <Markdown
                                 className="flex-col"
                                 components={{
                                     strong: props => (
-                                        <MsgBold>{props.children}</MsgBold>
+                                        <b className="text-white">
+                                            {props.children}
+                                        </b>
                                     ),
                                     a: props => (
                                         <a
@@ -86,22 +119,31 @@ const ChatItem: React.FC<{
                                         </a>
                                     ),
                                     p: props => (
-                                        <MsgItem>{props.children}</MsgItem>
+                                        <p className="m-0">{props.children}</p>
                                     ),
                                 }}
                             >
                                 {item.content}
                             </Markdown>
                         </div>
+                        <AudioButton
+                            agent={agent}
+                            playingAudio={playingAudio}
+                            setPlayingAudio={setPlayingAudio}
+                            text={item.content}
+                            startTalking={startTalking}
+                        />
                     </MsgCard>
                 </>
             ) : (
                 <>
-                    <MsgCard $msgrole={item.role}>
+                    <MsgCard msgrole={item.role}>
                         <Markdown
                             components={{
                                 strong: props => (
-                                    <MsgBold>{props.children}</MsgBold>
+                                    <b className="text-white">
+                                        {props.children}
+                                    </b>
                                 ),
                                 a: props => (
                                     <a
@@ -112,14 +154,71 @@ const ChatItem: React.FC<{
                                         {props.children}
                                     </a>
                                 ),
-                                p: props => <MsgItem>{props.children}</MsgItem>,
+                                p: props => (
+                                    <p className="m-0">{props.children}</p>
+                                ),
                             }}
                         >
                             {item.content}
                         </Markdown>
                     </MsgCard>
-                    <MsgIcon $msgrole={item.role} />
+                    <MsgIcon msgrole={item.role} />
                 </>
+            )}
+        </div>
+    );
+};
+
+const MsgCard: React.FC<{children?: ReactNode; msgrole: ChatRoleType}> =
+    function ({children, msgrole}) {
+        return (
+            <Card
+                style={{
+                    borderRadius: 8,
+                    opacity: 0.85,
+                    margin: 2,
+                    padding: 10,
+                    marginLeft: msgrole === 'assistant' ? 6 : undefined,
+                    marginRight: msgrole !== 'assistant' ? 6 : 6,
+                    color: msgrole === 'assistant' ? 'white' : 'black',
+                    overflowWrap: 'break-word',
+                    backgroundColor:
+                        msgrole === 'assistant' ? '#00A4F6' : '#D4D4D4',
+                    font: 'normal normal medium 11px/15px Montserrat',
+                }}
+                className={
+                    'pointer-events-none touch-none text-[13px] text-left max-w-[90%] flex justify-between'
+                }
+            >
+                {children}
+            </Card>
+        );
+    };
+
+const MsgIcon: React.FC<{msgrole: ChatRoleType; userPic?: string}> = function ({
+    msgrole,
+    userPic,
+}) {
+    return (
+        <div className={'rounded-[50%] w-[30px] h-[30px] relative'}>
+            {userPic ? (
+                <Image
+                    className={'object-top object-cover rounded-[50%] '}
+                    src={userPic}
+                    fill
+                    draggable={false}
+                    alt="Profile image"
+                />
+            ) : msgrole === 'assistant' ? (
+                <Image
+                    className={'object-top object-cover rounded-[50%] '}
+                    src={DEFAULT_IMAGES['profile']}
+                    fill
+                    draggable={false}
+                    alt="Profile image"
+                />
+            ) : (
+                <Icon icon="user" color="#FFFA" size={30} />
             )}
         </div>
     );
@@ -129,104 +228,5 @@ const MsgCardJustifySettings: Record<ChatRoleType, string> = {
     assistant: 'left',
     user: 'right',
 };
-
-const itemCSS: Record<ChatRoleType, string> = {
-    assistant: `
-        text-align: left;
-        max-width: 90%;
-        color: #FFFFFF;
-        background: #00A4F6 0% 0% no-repeat padding-box;
-        border-radius: 8px;
-        opacity: 0.85;
-        font: normal normal medium 11px/15px Montserrat;
-        margin-left: 6px;
-    `,
-    user: `
-        text-align: left;
-        max-width: 90%;
-        background: #D4D4D4 0% 0% no-repeat padding-box;
-        border-radius: 8px;
-        opacity: 0.85;
-        font: normal normal medium 11px/15px Montserrat;
-        margin-right: 6px;
-    `,
-};
-
-/* Styled components */
-
-const ChatHistoryContainer = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: none;
-    padding-top: 10px;
-    z-index: 4;
-    touch-action: auto;
-    background: transparent linear-gradient(180deg, #062e4500 0%, #062e45 100%)
-        0% 0% no-repeat padding-box;
-    opacity: 1;
-    width: 100%;
-    min-width: 100%;
-    height: 299px;
-    align-items: center;
-    position: relative;
-
-    /* This creates a fade effect at the top */
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 1) 30%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 1) 30%
-    );
-`;
-
-const ChatHistoryListPane = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: relative;
-    width: 100%;
-    padding: 0px 8px;
-`;
-
-const MsgCard = styled(Card)<{$msgrole: ChatRoleType}>`
-    border-radius: 10px;
-    overflow-wrap: break-word;
-    margin: 2px;
-    padding: 10px;
-    pointer-events: none;
-    touch-action: none;
-    font-size: 13px;
-    ${({$msgrole}) => itemCSS[$msgrole]}
-`;
-
-const MsgIcon = styled.div<{$msgrole: ChatRoleType; $userPic?: string}>`
-    flex-shrink: 0;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    background: ${({$userPic, $msgrole}) =>
-        $userPic
-            ? `url(${$userPic}) top/cover no-repeat`
-            : $msgrole === 'assistant'
-              ? `transparent url(${DEFAULT_IMAGES['profile']}) center/cover no-repeat`
-              : "#CFCFCF url('placeholder-icon.png') center/cover no-repeat"};
-    opacity: 1;
-`;
-
-const MsgBold = styled.b`
-    color: #ffffff;
-`;
-
-const MsgItem = styled.p`
-    margin: 0px;
-`;
 
 export default ChatHistory;

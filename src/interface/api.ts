@@ -1,4 +1,4 @@
-import {MsgType} from './msg';
+import {LLMMsgType} from './msg';
 
 export type RequestType = {
     type: 'web';
@@ -13,6 +13,10 @@ export type WebRequestType =
     | {
           type: 'web_chat';
           task: WebChatRequestType;
+      }
+    | {
+          type: 'tts';
+          task: AgentTTSRequestType;
       };
 
 export type AgentIDOnlyRequestType = {
@@ -21,5 +25,10 @@ export type AgentIDOnlyRequestType = {
 
 export type WebChatRequestType = {
     agent: string;
-    msgs: MsgType[];
+    msgs: LLMMsgType[];
+};
+
+export type AgentTTSRequestType = {
+    agent: string;
+    message: string;
 };

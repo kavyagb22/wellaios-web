@@ -1,7 +1,7 @@
 export type WebWELLAgent = {
     id: string;
     meta: AgentMetaType;
-    output: AgentOutputType;
+    dna: AgentDNA;
 };
 
 export type AgentMetaType = {
@@ -10,12 +10,15 @@ export type AgentMetaType = {
     profile: string;
 };
 
-export type AgentOutputType = {
-    mode: 'web';
-    params: OutputParamsType;
-};
-
 export type OutputParamsType = {
     agent_img: string;
     background: string;
+};
+
+export type AgentDNA = {
+    persona: string;
+    instruction: string;
+    background: string;
+    outlook_type: string;
+    outlook: string;
 };

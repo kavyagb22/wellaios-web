@@ -6,31 +6,14 @@ import {fetchAPI} from './control/api';
 import {WebWELLAgent} from './interface/agent';
 import {DEFAULT_IMAGES} from './config/constants';
 import Image from 'next/image';
-import Avatar3D from './ui/model/avatar';
 import LoadingPage from './loading';
 import {useSearchParams} from 'next/navigation';
 import NoAgentPage from './noagent';
 import {getMediaWithDefault} from './control/utils/media';
 
-function estimateSpeechDuration(message: string, wordsPerMinute = 150): number {
-    if (!message) {
-        return 0; // Handle empty messages
-    }
-
-    // 1. Split the message into words.  Handles multiple spaces and leading/trailing spaces.
-    const words = message.trim().split(/\s+/);
-    const numberOfWords = words.length;
-
-    // 2. Calculate the estimated time in seconds.
-    const estimatedTimeInSeconds = (numberOfWords * 60000) / wordsPerMinute;
-
-    return estimatedTimeInSeconds;
-}
-
 const MainPage: React.FC = function () {
     const searchParams = useSearchParams();
     const aid = searchParams.get('agentId');
-    const [talking, setTalking] = useState<number>(0);
 
     const [agent, setAgent] = useState<WebWELLAgent | null | undefined>(
         undefined
@@ -55,61 +38,26 @@ const MainPage: React.FC = function () {
             });
     };
 
-    const talk = function (msg: string) {
-        console.log(`[INFO] Talking: ${talking}`);
-        setTalking(t => t + 1);
-        setTimeout(() => setTalking(t => t - 1), estimateSpeechDuration(msg));
-    };
-
     return (
         <>
             {agent ? (
-                <div
-                    style={{
-                        height: '100vh',
-                        width: '100vw',
-                        minWidth: '100vw',
-                        overflow: 'hidden',
-                        opacity: '1',
-                        position: 'relative',
-                    }}
-                >
-                    <Image
-                        src={getMediaWithDefault(
-                            agent.output.params.background,
-                            DEFAULT_IMAGES['bg']
-                        )}
-                        fill
-                        className="object-cover"
-                        alt="Background"
-                        draggable={false}
-                    />
-                    <Header agent={agent} />
-                    <div
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        {agent.output.params.agent_img === '' ? (
-                            <Avatar3D />
-                        ) : (
-                            <Image
-                                src={getMediaWithDefault(
-                                    agent.output.params.agent_img,
-                                    DEFAULT_IMAGES['agent']
-                                )}
-                                fill
-                                className="px-[2%] pt-[10%] object-contain"
-                                alt="Agent"
-                                draggable={false}
-                            />
-                        )}
+                <div className="h-[100vh] w-[100vw] min-w-[100vw] relative">
+                    <div className="absolute inset-0">
+                        <Image
+                            src={getMediaWithDefault(
+                                agent.dna.background,
+                                DEFAULT_IMAGES['bg']
+                            )}
+                            fill
+                            className="object-cover"
+                            alt="Background"
+                            draggable={false}
+                        />
                     </div>
-                    <ChatPane agent={agent} talk={talk} />
+                    <div className="absolute flex flex-col inset-0">
+                        <Header agent={agent} />
+                        <ChatPane agent={agent} />
+                    </div>
                 </div>
             ) : aid !== null && agent === undefined ? (
                 <LoadingPage />
