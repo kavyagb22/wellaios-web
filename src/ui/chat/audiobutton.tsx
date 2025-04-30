@@ -2,6 +2,7 @@ import {fetchAPI} from '@/control/api';
 import {AgentTTSRequestType, WebRequestType} from '@/interface/api';
 import {Button, Icon, Spinner} from '@blueprintjs/core';
 import {useRef} from 'react';
+import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
 
 const AudioButton: React.FC<{
     agent: string;
@@ -9,11 +10,25 @@ const AudioButton: React.FC<{
     setPlayingAudio: (x: boolean) => void;
     startTalking: () => void;
     text: string;
-}> = ({agent, playingAudio, setPlayingAudio, text, startTalking}) => {
+    emotion: string;
+    sendMessage: (
+        gameobj: string,
+        method: string,
+        params: ReactUnityEventParameter
+    ) => void;
+}> = ({
+    agent,
+    playingAudio,
+    setPlayingAudio,
+    text,
+    emotion,
+    startTalking,
+    sendMessage,
+}) => {
     const playerRef = useRef<HTMLAudioElement | null>(null);
 
     const playAudio = async () => {
-        setPlayingAudio(true);
+        // setPlayingAudio(true);
 
         if (!playerRef.current) {
             console.log(`[INFO] Generating TTS for: ${text}`);
@@ -25,15 +40,20 @@ const AudioButton: React.FC<{
 
             try {
                 const data = await fetchAPI(query);
-                const audioSrc = `data:audio/wav;base64,${data.result}`;
-                playerRef.current = new Audio(audioSrc);
-                playerRef.current.preload = 'auto';
-                playerRef.current.addEventListener('ended', () =>
-                    setPlayingAudio(false)
-                );
+                if (emotion !== undefined) {
+                    sendMessage('Kiki01', 'emotion', emotion);
+                }
+                console.log(data.result);
+                // sendMessage('Kiki01', 'speak', data.result);
+                // const audioSrc = `data:audio/wav;base64,${data.result}`;
+                // playerRef.current = new Audio(audioSrc);
+                // playerRef.current.preload = 'auto';
+                // playerRef.current.addEventListener('ended', () =>
+                //     setPlayingAudio(false)
+                // );
             } catch (error) {
                 console.error('Error fetching audio:', error);
-                setPlayingAudio(false);
+                // setPlayingAudio(false);
                 return;
             }
         }

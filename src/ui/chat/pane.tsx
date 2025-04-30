@@ -11,6 +11,7 @@ import {motion} from 'framer-motion';
 import UnityPane from '../visual/unity';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
+import {useUnityContext} from 'react-unity-webgl';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
@@ -19,6 +20,12 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
     const {history, addMessage} = useHistory();
     const [isTyping, setIsTyping] = useState<number>(0);
     const [talking, setTalking] = useState<number>(0);
+    const {unityProvider, sendMessage, isLoaded} = useUnityContext({
+        loaderUrl: 'unity/unity.loader.js',
+        dataUrl: 'unity/unity.data',
+        frameworkUrl: 'unity/unity.framework.js',
+        codeUrl: 'unity/unity.wasm',
+    });
 
     const startTyping = () => setIsTyping(t => t + 1);
     const doneTyping = () => setIsTyping(t => Math.max(t - 1, 0));
@@ -89,6 +96,8 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
                             startTalking={startTalking}
                             stopTalking={doneTalking}
                             talking={talking > 0}
+                            isLoaded={isLoaded}
+                            sendMessage={sendMessage}
                         />
                     )}
                     {isTyping > 0 && <TypingPane name={agent.meta.name} />}
@@ -98,6 +107,8 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
                         agent.meta.profile,
                         DEFAULT_IMAGES['profile']
                     )}
+                    unityProvider={unityProvider}
+                    isLoaded={isLoaded}
                 />
             </div>
             <UserInputPane addMessage={addUserMessage} />

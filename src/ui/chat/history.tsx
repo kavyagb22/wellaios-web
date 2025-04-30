@@ -1,12 +1,13 @@
 import {Card, Icon, Spinner} from '@blueprintjs/core';
 import {ReactNode, useEffect, useRef, useState} from 'react';
-import Markdown from 'react-markdown';
+import Markdown, {Components} from 'react-markdown';
 import {ChatRoleType, MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
 import Image from 'next/image';
 import AudioButton from './audiobutton';
+import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
 
 const ChatHistory: React.FC<{
     history: MsgType[];
@@ -14,7 +15,21 @@ const ChatHistory: React.FC<{
     startTalking: () => void;
     stopTalking: () => void;
     talking: boolean;
-}> = function ({history, agent, startTalking, stopTalking, talking}) {
+    isLoaded: boolean;
+    sendMessage: (
+        gameobj: string,
+        method: string,
+        params: ReactUnityEventParameter
+    ) => void;
+}> = function ({
+    history,
+    agent,
+    startTalking,
+    stopTalking,
+    talking,
+    isLoaded,
+    sendMessage,
+}) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
     const [playingAudio, setPlayAudio] = useState<boolean>(false);
     const userPic = getMediaWithDefault(
@@ -51,9 +66,12 @@ const ChatHistory: React.FC<{
                                 agent={agent.id}
                                 item={x}
                                 userPic={userPic}
-                                playingAudio={playingAudio}
+                                playingAudio={
+                                    playingAudio || !isLoaded || talking
+                                }
                                 setPlayingAudio={setPlayingAudio}
                                 startTalking={startTalking}
+                                sendMessage={sendMessage}
                             />
                         ))
                     )}
@@ -70,6 +88,11 @@ const ChatItem: React.FC<{
     playingAudio: boolean;
     startTalking: () => void;
     setPlayingAudio: (x: boolean) => void;
+    sendMessage: (
+        gameobj: string,
+        method: string,
+        params: ReactUnityEventParameter
+    ) => void;
 }> = function ({
     agent,
     item,
@@ -77,6 +100,7 @@ const ChatItem: React.FC<{
     playingAudio,
     startTalking,
     setPlayingAudio,
+    sendMessage,
 }) {
     const itemRef = useRef<HTMLDivElement | null>(null);
 
@@ -103,25 +127,7 @@ const ChatItem: React.FC<{
                         <div className="flex items-center">
                             <Markdown
                                 className="flex-col"
-                                components={{
-                                    strong: props => (
-                                        <b className="text-white">
-                                            {props.children}
-                                        </b>
-                                    ),
-                                    a: props => (
-                                        <a
-                                            href={props.href}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            {props.children}
-                                        </a>
-                                    ),
-                                    p: props => (
-                                        <p className="m-0">{props.children}</p>
-                                    ),
-                                }}
+                                components={mComponents}
                             >
                                 {item.content}
                             </Markdown>
@@ -131,34 +137,16 @@ const ChatItem: React.FC<{
                             playingAudio={playingAudio}
                             setPlayingAudio={setPlayingAudio}
                             text={item.content}
+                            emotion={item.emotion}
                             startTalking={startTalking}
+                            sendMessage={sendMessage}
                         />
                     </MsgCard>
                 </>
             ) : (
                 <>
                     <MsgCard msgrole={item.role}>
-                        <Markdown
-                            components={{
-                                strong: props => (
-                                    <b className="text-white">
-                                        {props.children}
-                                    </b>
-                                ),
-                                a: props => (
-                                    <a
-                                        href={props.href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        {props.children}
-                                    </a>
-                                ),
-                                p: props => (
-                                    <p className="m-0">{props.children}</p>
-                                ),
-                            }}
-                        >
+                        <Markdown components={mComponents}>
                             {item.content}
                         </Markdown>
                     </MsgCard>
@@ -167,6 +155,16 @@ const ChatItem: React.FC<{
             )}
         </div>
     );
+};
+
+const mComponents: Components = {
+    strong: props => <b className="text-white">{props.children}</b>,
+    a: props => (
+        <a href={props.href} target="_blank" rel="noreferrer">
+            {props.children}
+        </a>
+    ),
+    p: props => <p className="m-0">{props.children}</p>,
 };
 
 const MsgCard: React.FC<{children?: ReactNode; msgrole: ChatRoleType}> =

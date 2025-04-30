@@ -1,14 +1,13 @@
 import Image from 'next/image';
 import {useEffect, useState} from 'react';
-import {Unity, useUnityContext} from 'react-unity-webgl';
+import {Unity} from 'react-unity-webgl';
+import {UnityProvider} from 'react-unity-webgl/distribution/types/unity-provider';
 
-const UnityPane: React.FC<{profile: string}> = function ({profile}) {
-    const {unityProvider, sendMessage, isLoaded} = useUnityContext({
-        loaderUrl: 'unity/unity.loader.js',
-        dataUrl: 'unity/unity.data',
-        frameworkUrl: 'unity/unity.framework.js',
-        codeUrl: 'unity/unity.wasm',
-    });
+const UnityPane: React.FC<{
+    profile: string;
+    unityProvider: UnityProvider;
+    isLoaded: boolean;
+}> = function ({profile, unityProvider, isLoaded}) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
