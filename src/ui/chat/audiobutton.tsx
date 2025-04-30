@@ -1,7 +1,7 @@
 import {fetchAPI} from '@/control/api';
 import {AgentTTSRequestType, WebRequestType} from '@/interface/api';
 import {Button, Icon, Spinner} from '@blueprintjs/core';
-import {useRef} from 'react';
+import {useState} from 'react';
 import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
 
 const AudioButton: React.FC<{
@@ -16,61 +16,47 @@ const AudioButton: React.FC<{
         params: ReactUnityEventParameter
     ) => void;
 }> = ({agent, playingAudio, text, emotion, startTalking, sendMessage}) => {
-    const playerRef = useRef<HTMLAudioElement | null>(null);
+    const [audio, setAudio] = useState<string | undefined>(undefined);
 
     const playAudio = async () => {
-        // setPlayingAudio(true);
-
-        if (!playerRef.current) {
-            console.log(`[INFO] Generating TTS for: ${text}`);
-            const payload: AgentTTSRequestType = {
-                agent,
-                message: text,
-            };
-            const query: WebRequestType = {type: 'tts', task: payload};
-
-            try {
-                const data = await fetchAPI(query);
-                if (emotion !== undefined) {
-                    sendMessage('Kiki01', 'emotion', emotion);
-                }
-                console.log(data.result);
-                // sendMessage('Kiki01', 'speak', data.result);
-                // const audioSrc = `data:audio/wav;base64,${data.result}`;
-                // playerRef.current = new Audio(audioSrc);
-                // playerRef.current.preload = 'auto';
-                // playerRef.current.addEventListener('ended', () =>
-                //     setPlayingAudio(false)
-                // );
-            } catch (error) {
-                console.error('Error fetching audio:', error);
-                // setPlayingAudio(false);
-                return;
-            }
-        }
-
-        if (playerRef.current) {
+        if (!playingAudio) {
             startTalking();
-            playerRef.current.play().catch(err => {
-                console.error('Audio playback error:', err);
-            });
+            if (audio === undefined) {
+                console.log(`[INFO] Generating TTS for: ${text}`);
+                const payload: AgentTTSRequestType = {
+                    agent,
+                    message: text,
+                };
+                const query: WebRequestType = {type: 'tts', task: payload};
+
+                try {
+                    const data = await fetchAPI(query);
+                    sendMessage('Kiki01', 'emotion', emotion);
+                    setAudio(data.result);
+                    sendMessage('Kiki01', 'speak', data.result);
+                } catch (error) {
+                    console.error('Error fetching audio:', error);
+                    return;
+                }
+            } else {
+                sendMessage('Kiki01', 'emotion', emotion);
+                sendMessage('Kiki01', 'speak', audio);
+            }
         }
     };
     return (
-        <div className="w-[10%] flex justify-center items-center">
-            <Button
-                style={{pointerEvents: 'all'}}
-                icon={
-                    playingAudio ? (
-                        <Spinner size={20} />
-                    ) : (
-                        <Icon icon="volume-up" color="white" />
-                    )
-                }
-                variant="minimal"
-                onClick={playAudio}
-            />
-        </div>
+        <Button
+            style={{pointerEvents: 'all'}}
+            icon={
+                playingAudio ? (
+                    <Spinner size={20} />
+                ) : (
+                    <Icon icon="volume-up" color="white" />
+                )
+            }
+            variant="minimal"
+            onClick={playAudio}
+        />
     );
 };
 

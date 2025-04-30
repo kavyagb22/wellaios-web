@@ -1,5 +1,5 @@
 import {Card, Icon, Spinner} from '@blueprintjs/core';
-import {ReactNode, useEffect, useRef, useState} from 'react';
+import {ReactNode, useEffect, useRef} from 'react';
 import Markdown, {Components} from 'react-markdown';
 import {ChatRoleType, MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
@@ -13,7 +13,6 @@ const ChatHistory: React.FC<{
     history: MsgType[];
     agent: WebWELLAgent;
     startTalking: () => void;
-    stopTalking: () => void;
     talking: boolean;
     isLoaded: boolean;
     sendMessage: (
@@ -21,15 +20,7 @@ const ChatHistory: React.FC<{
         method: string,
         params: ReactUnityEventParameter
     ) => void;
-}> = function ({
-    history,
-    agent,
-    startTalking,
-    stopTalking,
-    talking,
-    isLoaded,
-    sendMessage,
-}) {
+}> = function ({history, agent, startTalking, talking, isLoaded, sendMessage}) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
     const userPic = getMediaWithDefault(
         agent.meta.profile,

@@ -20,12 +20,13 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
     const {history, addMessage} = useHistory();
     const [isTyping, setIsTyping] = useState<number>(0);
     const [talking, setTalking] = useState<number>(0);
-    const {unityProvider, sendMessage, isLoaded} = useUnityContext({
-        loaderUrl: 'unity/unity.loader.js',
-        dataUrl: 'unity/unity.data',
-        frameworkUrl: 'unity/unity.framework.js',
-        codeUrl: 'unity/unity.wasm',
-    });
+    const {unityProvider, sendMessage, addEventListener, isLoaded} =
+        useUnityContext({
+            loaderUrl: 'unity/unity.loader.js',
+            dataUrl: 'unity/unity.data',
+            frameworkUrl: 'unity/unity.framework.js',
+            codeUrl: 'unity/unity.wasm',
+        });
 
     const startTyping = () => setIsTyping(t => t + 1);
     const doneTyping = () => setIsTyping(t => Math.max(t - 1, 0));
@@ -39,6 +40,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
             chatEndRef.current.scrollIntoView({behavior: 'smooth'});
         }
     }, [history]);
+
+    useEffect(() => {
+        addEventListener('TalkEnded', doneTalking);
+        // addEventListener('ActionEnded', actionEnded);
+    }, [addEventListener]);
 
     const addUserMessage = function (msg: MsgType) {
         if (history !== undefined) {
@@ -94,7 +100,6 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
                             history={history}
                             agent={agent}
                             startTalking={startTalking}
-                            stopTalking={doneTalking}
                             talking={talking > 0}
                             isLoaded={isLoaded}
                             sendMessage={sendMessage}
