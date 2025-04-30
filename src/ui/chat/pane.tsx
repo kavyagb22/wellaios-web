@@ -64,7 +64,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
                 const msg = response.content || '...';
                 const assistantMsg: MsgType = {
                     role: 'assistant',
-                    emotion: msg.emotion,
+                    emotion: response.emotion,
                     content: msg,
                     timestamp: getCurrentTS(),
                 };
@@ -119,7 +119,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent}> = function ({agent}) {
 const TypingPane: React.FC<{name: string}> = function ({name}) {
     return (
         <div
-            className="bg-[#062e45] h-[25px] text-center color-white pt-[6px] flex justify-center"
+            className="h-[25px] text-center text-white pt-[6px] flex justify-center"
             style={{font: 'normal normal medium 11px/15px Montserrat'}}
         >
             {name} is typing <AnimationDot delay={0} />

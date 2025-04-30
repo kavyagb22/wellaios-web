@@ -31,18 +31,10 @@ const ChatHistory: React.FC<{
     sendMessage,
 }) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
-    const [playingAudio, setPlayAudio] = useState<boolean>(false);
     const userPic = getMediaWithDefault(
         agent.meta.profile,
         DEFAULT_IMAGES['profile']
     );
-
-    const setPlayingAudio = function (x: boolean) {
-        setPlayAudio(x);
-        if (!x) {
-            stopTalking();
-        }
-    };
 
     useEffect(() => {
         if (chatWinDiv.current) {
@@ -66,10 +58,7 @@ const ChatHistory: React.FC<{
                                 agent={agent.id}
                                 item={x}
                                 userPic={userPic}
-                                playingAudio={
-                                    playingAudio || !isLoaded || talking
-                                }
-                                setPlayingAudio={setPlayingAudio}
+                                playingAudio={!isLoaded || talking}
                                 startTalking={startTalking}
                                 sendMessage={sendMessage}
                             />
@@ -87,7 +76,6 @@ const ChatItem: React.FC<{
     userPic?: string;
     playingAudio: boolean;
     startTalking: () => void;
-    setPlayingAudio: (x: boolean) => void;
     sendMessage: (
         gameobj: string,
         method: string,
@@ -99,7 +87,6 @@ const ChatItem: React.FC<{
     userPic,
     playingAudio,
     startTalking,
-    setPlayingAudio,
     sendMessage,
 }) {
     const itemRef = useRef<HTMLDivElement | null>(null);
@@ -135,7 +122,6 @@ const ChatItem: React.FC<{
                         <AudioButton
                             agent={agent}
                             playingAudio={playingAudio}
-                            setPlayingAudio={setPlayingAudio}
                             text={item.content}
                             emotion={item.emotion}
                             startTalking={startTalking}

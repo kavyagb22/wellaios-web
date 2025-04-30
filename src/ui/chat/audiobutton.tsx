@@ -7,7 +7,6 @@ import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/rea
 const AudioButton: React.FC<{
     agent: string;
     playingAudio: boolean;
-    setPlayingAudio: (x: boolean) => void;
     startTalking: () => void;
     text: string;
     emotion: string;
@@ -16,15 +15,7 @@ const AudioButton: React.FC<{
         method: string,
         params: ReactUnityEventParameter
     ) => void;
-}> = ({
-    agent,
-    playingAudio,
-    setPlayingAudio,
-    text,
-    emotion,
-    startTalking,
-    sendMessage,
-}) => {
+}> = ({agent, playingAudio, text, emotion, startTalking, sendMessage}) => {
     const playerRef = useRef<HTMLAudioElement | null>(null);
 
     const playAudio = async () => {
@@ -62,7 +53,6 @@ const AudioButton: React.FC<{
             startTalking();
             playerRef.current.play().catch(err => {
                 console.error('Audio playback error:', err);
-                setPlayingAudio(false);
             });
         }
     };
