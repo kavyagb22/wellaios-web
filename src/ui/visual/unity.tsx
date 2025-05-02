@@ -1,3 +1,4 @@
+import {AnimatePresence, motion} from 'framer-motion';
 import Image from 'next/image';
 import {useEffect, useState} from 'react';
 import {Unity} from 'react-unity-webgl';
@@ -24,18 +25,23 @@ const UnityPane: React.FC<{
                     unityProvider={unityProvider}
                 />
             </div>
-            {isLoading && <LoadingPage profile={profile} />}
+            <AnimatePresence>
+                {isLoading && <LoadingPage profile={profile} />}
+            </AnimatePresence>
         </div>
     );
 };
 
 const LoadingPage: React.FC<{profile: string}> = function ({profile}) {
     return (
-        <div className="absolute inset-0 bg-[lightgrey] flex justify-center items-center">
+        <motion.div
+            exit={{opacity: 0}}
+            className="absolute inset-0 rounded-[10px] m-[10px] bg-[lightgrey] flex justify-center items-center"
+        >
             <div className="animate-bounce relative w-[150px] h-[150px] rounded-[50%] overflow-hidden">
                 <Image src={profile} draggable={false} alt="AI Image" fill />
             </div>
-        </div>
+        </motion.div>
     );
 };
 
