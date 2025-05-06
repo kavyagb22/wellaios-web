@@ -17,7 +17,16 @@ export type WebRequestType =
     | {
           type: 'tts';
           task: AgentTTSRequestType;
+      }
+    | {
+          type: 'web_history';
+          task: WebHistoryRequestType;
       };
+
+export type WebHistoryRequestType = {
+    agent: string;
+    userid: string;
+};
 
 export type AgentIDOnlyRequestType = {
     agent: string;
@@ -26,6 +35,7 @@ export type AgentIDOnlyRequestType = {
 export type WebChatRequestType = {
     agent: string;
     msgs: LLMMsgType[];
+    userid?: string;
 };
 
 export type AgentTTSRequestType = {

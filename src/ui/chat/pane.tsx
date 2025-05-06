@@ -18,7 +18,7 @@ const ErrorMsg = 'Failed to get a response. Please try again.';
 const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
     function ({agent, uid}) {
         const chatEndRef = useRef<HTMLDivElement | null>(null);
-        const {history, addMessage} = useHistory(uid);
+        const {history, addMessage} = useHistory(agent.id, uid);
         const [isTyping, setIsTyping] = useState<number>(0);
         const [talking, setTalking] = useState<number>(0);
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
@@ -64,6 +64,9 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                 agent: agent.id,
                 msgs: slicedHistory,
             };
+            if (uid !== null) {
+                payload.userid = uid;
+            }
             const query: WebRequestType = {type: 'web_chat', task: payload};
             fetchAPI(query)
                 .then(response => {

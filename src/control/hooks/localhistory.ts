@@ -1,5 +1,7 @@
+import {WebHistoryRequestType, WebRequestType} from '@/interface/api';
 import {MsgType} from '@/interface/msg';
 import {useState, useEffect} from 'react';
+import {fetchAPI} from '../api';
 
 const DB_NAME = 'chatHistoryDB';
 const DB_VERSION = 1;
@@ -9,7 +11,7 @@ const STORE_NAME = 'messages';
  * Custom hook for managing chat history using IndexedDB.
  * @returns An object containing the chat history and a function to add a new message.
  */
-export const useHistory = (uid: string | null) => {
+export const useHistory = (agent: string, uid: string | null) => {
     const [db, setDb] = useState<IDBDatabase | null>(null);
     const [history, setHistory] = useState<MsgType[] | undefined>(undefined);
 
@@ -69,7 +71,18 @@ export const useHistory = (uid: string | null) => {
         };
     };
 
-    const fetchFromDB = async function (): Promise<void> {};
+    const fetchFromDB = async function (userid: string): Promise<void> {
+        const payload: WebHistoryRequestType = {
+            agent,
+            userid,
+        };
+        console.log(payload);
+        const query: WebRequestType = {type: 'web_history', task: payload};
+        fetchAPI(query).then(result => {
+            console.log(result);
+            setHistory([]);
+        });
+    };
 
     /**
      * Adds a message to the chat history in IndexedDB.
@@ -97,13 +110,14 @@ export const useHistory = (uid: string | null) => {
         if (uid === null) {
             initDatabase();
         } else {
-            fetchFromDB();
+            fetchFromDB(uid);
         }
     }, []);
 
     useEffect(() => {
         if (db !== null) {
             fetchHistory();
+        } else {
         }
     }, [db]);
 
