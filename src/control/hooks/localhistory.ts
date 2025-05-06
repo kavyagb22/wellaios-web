@@ -9,7 +9,7 @@ const STORE_NAME = 'messages';
  * Custom hook for managing chat history using IndexedDB.
  * @returns An object containing the chat history and a function to add a new message.
  */
-export const useHistory = () => {
+export const useHistory = (uid: string | null) => {
     const [db, setDb] = useState<IDBDatabase | null>(null);
     const [history, setHistory] = useState<MsgType[] | undefined>(undefined);
 
@@ -69,28 +69,36 @@ export const useHistory = () => {
         };
     };
 
+    const fetchFromDB = async function (): Promise<void> {};
+
     /**
      * Adds a message to the chat history in IndexedDB.
      * @param message The chat message to add.
      * @returns A Promise that resolves when the message is added.
      */
     const addMessage = async function (message: MsgType) {
-        if (!db) {
-            return;
-        }
-        const transaction = db.transaction(STORE_NAME, 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        store.add(message);
-        setHistory(h => {
-            if (h === undefined) {
-                return undefined;
+        if (uid === null) {
+            if (!db) {
+                return;
             }
-            return [...h, message];
-        });
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.add(message);
+            setHistory(h => {
+                if (h === undefined) {
+                    return undefined;
+                }
+                return [...h, message];
+            });
+        }
     };
 
     useEffect(() => {
-        initDatabase();
+        if (uid === null) {
+            initDatabase();
+        } else {
+            fetchFromDB();
+        }
     }, []);
 
     useEffect(() => {

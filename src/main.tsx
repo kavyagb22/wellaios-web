@@ -13,7 +13,8 @@ import {getMediaWithDefault} from './control/utils/media';
 
 const MainPage: React.FC = function () {
     const searchParams = useSearchParams();
-    const aid = searchParams.get('agentId');
+    const aid = searchParams.get('agent');
+    const uid = searchParams.get('user');
 
     const [agent, setAgent] = useState<WebWELLAgent | null | undefined>(
         undefined
@@ -56,7 +57,7 @@ const MainPage: React.FC = function () {
                     </div>
                     <div className="absolute flex flex-col inset-0">
                         <Header agent={agent} />
-                        <ChatPane agent={agent} />
+                        <ChatPane agent={agent} uid={uid} />
                     </div>
                 </div>
             ) : aid !== null && agent === undefined ? (
