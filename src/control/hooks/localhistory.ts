@@ -19,7 +19,7 @@ export const useHistory = (agent: string, uid: string | null) => {
      * Initializes the IndexedDB database.
      */
     const initDatabase = async function () {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = indexedDB.open(`${DB_NAME}-${agent}`, DB_VERSION);
 
         request.onerror = event => {
             console.error(
