@@ -57,6 +57,7 @@ const UserInputPane: React.FC<{
                             interimTranscript += event.results[i][0].transcript;
                         }
                     }
+                    console.log('interimTranscript', interimTranscript);
                 };
 
                 recognitionRef.current.onend = () => {

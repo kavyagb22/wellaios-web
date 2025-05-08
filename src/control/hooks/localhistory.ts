@@ -117,7 +117,6 @@ export const useHistory = (agent: string, uid: string | null) => {
     useEffect(() => {
         if (db !== null) {
             fetchHistory();
-        } else {
         }
     }, [db]);
 
