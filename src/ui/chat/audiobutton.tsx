@@ -7,6 +7,7 @@ import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/rea
 const AudioButton: React.FC<{
     agent: string;
     playingAudio: boolean;
+    playingAnimation: boolean;
     startTalking: () => void;
     text: string;
     emotion: string;
@@ -15,7 +16,15 @@ const AudioButton: React.FC<{
         method: string,
         params: ReactUnityEventParameter
     ) => void;
-}> = ({agent, playingAudio, text, emotion, startTalking, sendMessage}) => {
+}> = ({
+    agent,
+    playingAudio,
+    playingAnimation,
+    text,
+    emotion,
+    startTalking,
+    sendMessage,
+}) => {
     const [audio, setAudio] = useState<string | undefined>(undefined);
 
     const playAudio = async () => {
@@ -45,18 +54,22 @@ const AudioButton: React.FC<{
         }
     };
     return (
-        <Button
-            style={{pointerEvents: 'all'}}
-            icon={
-                playingAudio ? (
-                    <Spinner size={20} />
-                ) : (
-                    <Icon icon="volume-up" color="white" />
-                )
-            }
-            variant="minimal"
-            onClick={playAudio}
-        />
+        <>
+            {!playingAnimation && (
+                <Button
+                    style={{pointerEvents: 'all'}}
+                    icon={
+                        playingAudio ? (
+                            <Spinner size={20} />
+                        ) : (
+                            <Icon icon="volume-up" color="white" />
+                        )
+                    }
+                    variant="minimal"
+                    onClick={playAudio}
+                />
+            )}
+        </>
     );
 };
 

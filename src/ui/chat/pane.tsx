@@ -21,6 +21,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const {history, addMessage} = useHistory(agent.id, uid);
         const [isTyping, setIsTyping] = useState<number>(0);
         const [talking, setTalking] = useState<number>(0);
+        const [emoting, setEmoting] = useState<number>(0);
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
             useUnityContext({
                 loaderUrl: 'unity/unity.loader.js',
@@ -35,6 +36,21 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const startTalking = () => setTalking(t => t + 1);
         const doneTalking = () => setTalking(t => Math.max(t - 1, 0));
 
+        const startEmoting = () => setEmoting(t => t + 1);
+        const doneEmoting = () => {
+            console.log('doneEmoting triggered');
+            setEmoting(t => Math.max(t - 1, 0));
+        };
+
+        useEffect(() => {
+            const handler = () => {
+                console.log('[React] EmotionEnded received');
+                doneEmoting();
+            };
+            window.addEventListener('EmotionEnded', handler);
+            return () => window.removeEventListener('EmotionEnded', handler);
+        }, []);
+
         // Auto-scroll to the latest message
         useEffect(() => {
             if (chatEndRef.current) {
@@ -44,6 +60,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
 
         useEffect(() => {
             addEventListener('TalkEnded', doneTalking);
+            // addEventListener('ActionEnded', actionEnded);
+        }, [addEventListener]);
+
+        useEffect(() => {
+            addEventListener('EmotionEnded', doneEmoting);
             // addEventListener('ActionEnded', actionEnded);
         }, [addEventListener]);
 
@@ -71,6 +92,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
             fetchAPI(query)
                 .then(response => {
                     console.log(response);
+                    console.log('emotion:', response.emotion);
                     const msg = response.content || '...';
                     const assistantMsg: MsgType = {
                         role: 'assistant',
@@ -78,6 +100,12 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                         content: msg,
                         timestamp: getCurrentTS(),
                     };
+
+                    if (isLoaded && response.emotion) {
+                        startEmoting();
+                        sendMessage('Kiki01', 'EmotionAnimation', 'angry');
+                    }
+
                     addMessage(assistantMsg);
                 })
                 .catch(error => {
@@ -107,6 +135,8 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                                 talking={talking > 0}
                                 isLoaded={isLoaded}
                                 sendMessage={sendMessage}
+                                startEmoting={startEmoting}
+                                emoting={emoting > 0}
                             />
                         )}
                         {isTyping > 0 && <TypingPane name={agent.meta.name} />}

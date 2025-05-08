@@ -14,13 +14,24 @@ const ChatHistory: React.FC<{
     agent: WebWELLAgent;
     startTalking: () => void;
     talking: boolean;
+    startEmoting: () => void;
+    emoting: boolean;
     isLoaded: boolean;
     sendMessage: (
         gameobj: string,
         method: string,
         params: ReactUnityEventParameter
     ) => void;
-}> = function ({history, agent, startTalking, talking, isLoaded, sendMessage}) {
+}> = function ({
+    history,
+    agent,
+    startTalking,
+    talking,
+    startEmoting,
+    emoting,
+    isLoaded,
+    sendMessage,
+}) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
     const userPic = getMediaWithDefault(
         agent.meta.profile,
@@ -50,6 +61,7 @@ const ChatHistory: React.FC<{
                                 item={x}
                                 userPic={userPic}
                                 playingAudio={!isLoaded || talking}
+                                playingAnimation={!isLoaded || emoting}
                                 startTalking={startTalking}
                                 sendMessage={sendMessage}
                             />
@@ -66,6 +78,7 @@ const ChatItem: React.FC<{
     item: MsgType;
     userPic?: string;
     playingAudio: boolean;
+    playingAnimation: boolean;
     startTalking: () => void;
     sendMessage: (
         gameobj: string,
@@ -77,6 +90,7 @@ const ChatItem: React.FC<{
     item,
     userPic,
     playingAudio,
+    playingAnimation,
     startTalking,
     sendMessage,
 }) {
@@ -113,6 +127,7 @@ const ChatItem: React.FC<{
                         <AudioButton
                             agent={agent}
                             playingAudio={playingAudio}
+                            playingAnimation={playingAnimation}
                             text={item.content}
                             emotion={item.emotion}
                             startTalking={startTalking}
