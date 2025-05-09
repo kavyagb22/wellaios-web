@@ -8,6 +8,7 @@ const AudioButton: React.FC<{
     agent: string;
     playingAudio: boolean;
     playingAnimation: boolean;
+    playingActionAnimation: boolean;
     startTalking: () => void;
     text: string;
     emotion: string;
@@ -20,6 +21,7 @@ const AudioButton: React.FC<{
     agent,
     playingAudio,
     playingAnimation,
+    playingActionAnimation,
     text,
     emotion,
     startTalking,
@@ -55,7 +57,7 @@ const AudioButton: React.FC<{
     };
     return (
         <>
-            {!playingAnimation && (
+            {!playingAnimation && !playingActionAnimation && (
                 <Button
                     style={{pointerEvents: 'all'}}
                     icon={

@@ -12,6 +12,7 @@ import UnityPane from '../visual/unity';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
 import {useUnityContext} from 'react-unity-webgl';
+import {Button} from '@blueprintjs/core';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
@@ -22,6 +23,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const [isTyping, setIsTyping] = useState<number>(0);
         const [talking, setTalking] = useState<number>(0);
         const [emoting, setEmoting] = useState<number>(0);
+        const [animAction, setAnimAction] = useState<number>(0);
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
             useUnityContext({
                 loaderUrl: 'unity/unity.loader.js',
@@ -42,14 +44,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
             setEmoting(t => Math.max(t - 1, 0));
         };
 
-        useEffect(() => {
-            const handler = () => {
-                console.log('[React] EmotionEnded received');
-                doneEmoting();
-            };
-            window.addEventListener('EmotionEnded', handler);
-            return () => window.removeEventListener('EmotionEnded', handler);
-        }, []);
+        const startAnimAction = () => setAnimAction(t => t + 1);
+        const doneAnimAction = () => {
+            console.log('doneAnimAction triggered');
+            setAnimAction(t => Math.max(t - 1, 0));
+        };
 
         // Auto-scroll to the latest message
         useEffect(() => {
@@ -65,6 +64,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
 
         useEffect(() => {
             addEventListener('EmotionEnded', doneEmoting);
+            // addEventListener('ActionEnded', actionEnded);
+        }, [addEventListener]);
+
+        useEffect(() => {
+            addEventListener('AnimActionEnded', doneAnimAction);
             // addEventListener('ActionEnded', actionEnded);
         }, [addEventListener]);
 
@@ -103,7 +107,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
 
                     if (isLoaded && response.emotion) {
                         startEmoting();
-                        sendMessage('Kiki01', 'EmotionAnimation', 'angry');
+                        sendMessage(
+                            'Kiki01',
+                            'EmotionAnimation',
+                            response.emotion
+                        );
                     }
 
                     addMessage(assistantMsg);
@@ -123,8 +131,27 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                 });
         };
 
+        const generateRandomAnimation = () => {
+            const animations = ['hugging', 'waving', 'dancing'];
+            const randomIndex = Math.floor(Math.random() * animations.length);
+            const randomAnimation = animations[randomIndex];
+
+            startAnimAction();
+
+            sendMessage('Kiki01', 'ActionAnimation', randomAnimation);
+        };
+
         return (
             <div className="flex-1 flex flex-col">
+                <div className="flex justify-end p-2">
+                    <Button
+                        className="w-[200px]"
+                        onClick={generateRandomAnimation}
+                        disabled={animAction > 0}
+                    >
+                        Random Action
+                    </Button>
+                </div>
                 <div className="flex-1 flex items-stretch">
                     <div className="flex-[7] h-[100%] flex flex-col overflow-hidden relative">
                         {history !== undefined && (
@@ -135,12 +162,13 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                                 talking={talking > 0}
                                 isLoaded={isLoaded}
                                 sendMessage={sendMessage}
-                                startEmoting={startEmoting}
                                 emoting={emoting > 0}
+                                animAction={animAction > 0}
                             />
                         )}
                         {isTyping > 0 && <TypingPane name={agent.meta.name} />}
                     </div>
+
                     <UnityPane
                         profile={getMediaWithDefault(
                             agent.meta.profile,

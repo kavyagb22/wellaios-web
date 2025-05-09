@@ -14,8 +14,8 @@ const ChatHistory: React.FC<{
     agent: WebWELLAgent;
     startTalking: () => void;
     talking: boolean;
-    startEmoting: () => void;
     emoting: boolean;
+    animAction: boolean;
     isLoaded: boolean;
     sendMessage: (
         gameobj: string,
@@ -27,8 +27,8 @@ const ChatHistory: React.FC<{
     agent,
     startTalking,
     talking,
-    startEmoting,
     emoting,
+    animAction,
     isLoaded,
     sendMessage,
 }) {
@@ -62,6 +62,7 @@ const ChatHistory: React.FC<{
                                 userPic={userPic}
                                 playingAudio={!isLoaded || talking}
                                 playingAnimation={!isLoaded || emoting}
+                                playingActionAnimation={!isLoaded || animAction}
                                 startTalking={startTalking}
                                 sendMessage={sendMessage}
                             />
@@ -79,6 +80,7 @@ const ChatItem: React.FC<{
     userPic?: string;
     playingAudio: boolean;
     playingAnimation: boolean;
+    playingActionAnimation: boolean;
     startTalking: () => void;
     sendMessage: (
         gameobj: string,
@@ -91,6 +93,7 @@ const ChatItem: React.FC<{
     userPic,
     playingAudio,
     playingAnimation,
+    playingActionAnimation,
     startTalking,
     sendMessage,
 }) {
@@ -128,6 +131,7 @@ const ChatItem: React.FC<{
                             agent={agent}
                             playingAudio={playingAudio}
                             playingAnimation={playingAnimation}
+                            playingActionAnimation={playingActionAnimation}
                             text={item.content}
                             emotion={item.emotion}
                             startTalking={startTalking}
