@@ -1,6 +1,18 @@
+export type LLMCompositeMsg =
+    | {
+          type: 'text';
+          text: string;
+      }
+    | {
+          type: 'image_url';
+          image_url: {
+              url: string;
+          };
+      };
+
 export type LLMMsgType = {
     role: ChatRoleType;
-    content: string;
+    content: string | LLMCompositeMsg[];
 };
 
 export type MsgType = CoreMsg & {content: string; timestamp: number};
