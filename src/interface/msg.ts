@@ -15,16 +15,21 @@ export type LLMMsgType = {
     content: string | LLMCompositeMsg[];
 };
 
-export type MsgType = CoreMsg & {content: string; timestamp: number};
+export type MsgType = CoreMsg & {
+    // content: string;
+    timestamp: number;
+};
 
 type CoreMsg = UserCoreMsg | AICoreMsg;
 
 type UserCoreMsg = {
     role: 'user';
+    content: LLMCompositeMsg[];
 };
 
 type AICoreMsg = {
     role: 'assistant';
+    content: string;
     emotion: 'happy' | 'sad' | 'angry' | 'shy';
 };
 

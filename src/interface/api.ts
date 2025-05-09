@@ -21,6 +21,10 @@ export type WebRequestType =
     | {
           type: 'web_history';
           task: WebHistoryRequestType;
+      }
+    | {
+          type: 'upload';
+          task: UploadFileRequestType;
       };
 
 export type WebHistoryRequestType = {
@@ -41,4 +45,9 @@ export type WebChatRequestType = {
 export type AgentTTSRequestType = {
     agent: string;
     message: string;
+};
+
+export type UploadFileRequestType = {
+    filename: string;
+    user: string;
 };

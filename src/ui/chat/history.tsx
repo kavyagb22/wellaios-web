@@ -42,6 +42,7 @@ const ChatHistory: React.FC<{
         if (chatWinDiv.current) {
             chatWinDiv.current.scrollTop = chatWinDiv.current.scrollHeight;
         }
+        console.log('Chat history updated:', history);
     }, [history]);
 
     return (
@@ -142,9 +143,45 @@ const ChatItem: React.FC<{
             ) : (
                 <>
                     <MsgCard msgrole={item.role}>
-                        <Markdown components={mComponents}>
+                        {/* <Markdown components={mComponents}>
                             {item.content}
-                        </Markdown>
+                        </Markdown> */}
+                        <div className="flex flex-col items-center text-center">
+                            {/* First render images */}
+                            {Array.isArray(item.content) &&
+                                item.content
+                                    .filter(part => part.type === 'image_url')
+                                    .map((part, idx) => (
+                                        <div
+                                            key={`img-${idx}`}
+                                            className="mb-2"
+                                        >
+                                            <Image
+                                                src={
+                                                    (part as any).image_url.url
+                                                }
+                                                alt="User uploaded"
+                                                width={220}
+                                                height={220}
+                                                className="rounded-md object-contain"
+                                            />
+                                        </div>
+                                    ))}
+
+                            {/* Then render text */}
+                            {Array.isArray(item.content) &&
+                                item.content
+                                    .filter(part => part.type === 'text')
+                                    .map((part, idx) => (
+                                        <Markdown
+                                            key={`text-${idx}`}
+                                            components={mComponents}
+                                            className="text-[14px]"
+                                        >
+                                            {(part as any).text}
+                                        </Markdown>
+                                    ))}
+                        </div>
                     </MsgCard>
                     <MsgIcon msgrole={item.role} />
                 </>

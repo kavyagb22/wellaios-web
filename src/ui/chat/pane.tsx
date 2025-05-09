@@ -19,7 +19,7 @@ const ErrorMsg = 'Failed to get a response. Please try again.';
 const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
     function ({agent, uid}) {
         const chatEndRef = useRef<HTMLDivElement | null>(null);
-        const {history, addMessage} = useHistory(agent.id, uid);
+        const {history, addMessage, clearHistory} = useHistory(agent.id, uid);
         const [isTyping, setIsTyping] = useState<number>(0);
         const [talking, setTalking] = useState<number>(0);
         const [emoting, setEmoting] = useState<number>(0);
@@ -151,6 +151,12 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                     >
                         Random Action
                     </Button>
+                    {/* <Button
+                        className="w-[200px] bp4-intent-danger"
+                        onClick={() => clearHistory()}
+                    >
+                        Clear History
+                    </Button> */}
                 </div>
                 <div className="flex-1 flex items-stretch">
                     <div className="flex-[7] h-[100%] flex flex-col overflow-hidden relative">
@@ -178,7 +184,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                         isLoaded={isLoaded}
                     />
                 </div>
-                <UserInputPane addMessage={addUserMessage} />
+                <UserInputPane addMessage={addUserMessage} uid={uid} />
             </div>
         );
     };

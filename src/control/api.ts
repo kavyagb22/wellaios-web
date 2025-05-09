@@ -1,8 +1,7 @@
 import {RequestType, WebRequestType} from '@/interface/api';
 import {apiSign, getCurrentTS} from './helper';
 
-const API_AP =
-    'https://j8s1b1c3v6.execute-api.us-west-2.amazonaws.com/default/wellaios-backend';
+const API_AP = 'https://api.wellaios.ai/wellaios-backend';
 
 const internalAPI = async function (query: RequestType, timeout = false) {
     const ts = getCurrentTS();
