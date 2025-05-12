@@ -9,3 +9,8 @@ body {
 ::-webkit-scrollbar {
     display: none;
 }
+
+/* Tailwind can't target this — must use raw CSS */
+.bp5-popover2-arrow-fill {
+    fill: #012f44 !important;
+}

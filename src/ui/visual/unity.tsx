@@ -19,7 +19,14 @@ const UnityPane: React.FC<{
 
     return (
         <div className="flex-[3] relative">
-            <div className="absolute inset-0 rounded-[10px] overflow-hidden m-[10px]">
+            <div
+                className="absolute inset-0 overflow-hidden"
+                style={{
+                    borderRadius: '10px 10px 0px 0px',
+                    backgroundRepeat: 'repeat',
+                    backgroundOrigin: 'padding-box',
+                }}
+            >
                 <Unity
                     className="w-[100%] h-[100%] bg-transparent"
                     unityProvider={unityProvider}

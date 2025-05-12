@@ -1,0 +1,5 @@
+<svg id="Icon_microphone" data-name="Icon / microphone" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Icon_microphone_Frame_Background_" data-name="Icon / microphone [Frame Background]" width="24" height="24" fill="none"/>
+  <path id="icon" d="M8.026,14.021a4.017,4.017,0,0,1-4.026-4v-6a3.992,3.992,0,0,1,1.114-2.76A4.043,4.043,0,0,1,7.837.025.945.945,0,0,1,8.047,0a4.018,4.018,0,0,1,4,4.021v6A4.017,4.017,0,0,1,8.026,14.021Zm0-2a2.008,2.008,0,0,0,2.013-2v-6A2.012,2.012,0,0,0,8.19,2.006a.9.9,0,0,1-.164.015,2.008,2.008,0,0,0-2.013,2v6A2.008,2.008,0,0,0,8.026,12.021Z" transform="translate(4.051 1.979)" fill="#676774"/>
+  <path id="icon-2" data-name="icon" d="M8.051,16.021a6.025,6.025,0,0,0,6.039-6H16.1a8.026,8.026,0,0,1-7.045,7.931v2.069H7.045V17.952A8.026,8.026,0,0,1,0,10.021H2.013A6.025,6.025,0,0,0,8.051,16.021Z" transform="translate(4.026 1.979)" fill="#676774"/>
+</svg>

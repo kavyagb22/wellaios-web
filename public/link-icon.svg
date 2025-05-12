@@ -1,0 +1,5 @@
+<svg id="Icon_link-alt" data-name="Icon / link-alt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <rect id="Icon_link-alt_Frame_Background_" data-name="Icon / link-alt [Frame Background]" width="20" height="20" fill="none"/>
+  <path id="icon" d="M0,10.564a3.922,3.922,0,0,1,1.145-2.77L3.362,5.578,4.47,6.686,2.253,8.9a2.351,2.351,0,0,0,3.325,3.325L7.794,10.01,8.9,11.118,6.686,13.334A3.916,3.916,0,0,1,0,10.564ZM11.118,8.9,10.01,7.794l2.217-2.216A2.351,2.351,0,0,0,8.9,2.253L6.686,4.47,5.578,3.362,7.794,1.146a3.918,3.918,0,0,1,5.54,5.54Z" transform="translate(2.76 2.76)" fill="#676774"/>
+  <path id="icon-2" data-name="icon" d="M5.7,14.19,4.289,12.776,12.776,4.29,14.19,5.705Z" transform="translate(0.76 0.76)" fill="#676774"/>
+</svg>

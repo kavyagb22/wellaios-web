@@ -1,8 +1,12 @@
 import {fetchAPI} from '@/control/api';
 import {AgentTTSRequestType, WebRequestType} from '@/interface/api';
-import {Button, Icon, Spinner} from '@blueprintjs/core';
-import {useState} from 'react';
+import Image from 'next/image';
+import {useEffect, useRef, useState} from 'react';
 import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
+import {CustomPopover} from './history';
+import {Spinner} from '@blueprintjs/core';
+
+const MAX_VOLUME = 100;
 
 const AudioButton: React.FC<{
     agent: string;
@@ -17,6 +21,8 @@ const AudioButton: React.FC<{
         method: string,
         params: ReactUnityEventParameter
     ) => void;
+    globalVolume: number;
+    onGlobalVolumeChange: (volume: number) => void;
 }> = ({
     agent,
     playingAudio,
@@ -26,52 +32,134 @@ const AudioButton: React.FC<{
     emotion,
     startTalking,
     sendMessage,
+    globalVolume,
+    onGlobalVolumeChange,
 }) => {
-    const [audio, setAudio] = useState<string | undefined>(undefined);
+    const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
+    // const [volume, setVolume] = useState(MAX_VOLUME); // 0 - 100
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
+    // Handle audio play logic
     const playAudio = async () => {
         if (!playingAudio) {
             startTalking();
-            if (audio === undefined) {
-                console.log(`[INFO] Generating TTS for: ${text}`);
-                const payload: AgentTTSRequestType = {
-                    agent,
-                    message: text,
-                };
+            if (!audioUrl) {
+                const payload: AgentTTSRequestType = {agent, message: text};
                 const query: WebRequestType = {type: 'tts', task: payload};
 
                 try {
                     const data = await fetchAPI(query);
+                    setAudioUrl(data.result);
+
                     sendMessage('Kiki01', 'emotion', emotion);
-                    setAudio(data.result);
                     sendMessage('Kiki01', 'speak', data.result);
+                    audioRef.current?.play();
                 } catch (error) {
                     console.error('Error fetching audio:', error);
-                    return;
                 }
             } else {
                 sendMessage('Kiki01', 'emotion', emotion);
-                sendMessage('Kiki01', 'speak', audio);
+                sendMessage('Kiki01', 'speak', audioUrl);
+                audioRef.current?.play();
             }
         }
     };
+
+    // Handle volume change
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVolume = Number(e.target.value);
+        onGlobalVolumeChange(newVolume); // Update global volume
+        if (audioRef.current) {
+            audioRef.current.volume = newVolume / 100;
+        }
+    };
+
+    // Update audio volume when it changes
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            audio.volume = globalVolume / MAX_VOLUME;
+        }
+    }, [globalVolume, audioUrl]);
+
+    const stopAudioAndAnimation = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+        sendMessage('Kiki01', 'stopSpeak', ''); // Tell Unity to stop speaking
+        sendMessage('Kiki01', 'stopAnimation', ''); // Tell Unity to stop any animation
+    };
+
     return (
-        <>
+        <CustomPopover tooltip="Read aloud">
             {!playingAnimation && !playingActionAnimation && (
-                <Button
-                    style={{pointerEvents: 'all'}}
-                    icon={
-                        playingAudio ? (
-                            <Spinner size={20} />
+                <div className="flex gap-[4px] bg-[#f6f6f6] rounded-[4px] ">
+                    {/* Audio play button logic */}
+                    <button style={{pointerEvents: 'all'}} onClick={playAudio}>
+                        {playingAudio ? (
+                            // <Spinner size={16} />
+                            <button
+                                style={{pointerEvents: 'all'}}
+                                onClick={playAudio}
+                            >
+                                <div className="p-[4px]">
+                                    <Image
+                                        src="stop-icon.svg"
+                                        width={16}
+                                        height={16}
+                                        draggable={false}
+                                        alt="stop"
+                                        onClick={stopAudioAndAnimation}
+                                    />
+                                </div>
+                            </button>
                         ) : (
-                            <Icon icon="volume-up" color="white" />
-                        )
-                    }
-                    variant="minimal"
-                    onClick={playAudio}
-                />
+                            <div className="bg-[#f6f6f6] rounded-[4px] p-[4px]">
+                                <Image
+                                    src="audio-icon.svg"
+                                    width={16}
+                                    height={16}
+                                    draggable={false}
+                                    alt="audio"
+                                />
+                            </div>
+                        )}
+                    </button>
+
+                    {/* Volume control visible only when audio is playing */}
+                    {playingAudio && (
+                        <div className="flex items-center gap-[6px] pr-[8px]">
+                            <input
+                                type="range"
+                                min={0}
+                                max={MAX_VOLUME}
+                                value={globalVolume}
+                                onChange={handleVolumeChange}
+                                className=" w-full accent-[#036795] "
+                                style={{height: '4px'}}
+                            />
+
+                            <Image
+                                src="sound-icon.svg"
+                                width={16}
+                                height={16}
+                                draggable={false}
+                                alt="stop"
+                            />
+                            <span className="text-[#00121B] text-[12px]">
+                                {globalVolume}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Audio element */}
+                    {audioUrl && (
+                        <audio ref={audioRef} src={audioUrl} loop muted />
+                    )}
+                </div>
             )}
-        </>
+        </CustomPopover>
     );
 };
 

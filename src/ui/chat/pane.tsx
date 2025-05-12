@@ -13,6 +13,7 @@ import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
 import {useUnityContext} from 'react-unity-webgl';
 import {Button} from '@blueprintjs/core';
+import Image from 'next/image';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
@@ -144,13 +145,6 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         return (
             <div className="flex-1 flex flex-col">
                 <div className="flex justify-end p-2">
-                    <Button
-                        className="w-[200px]"
-                        onClick={generateRandomAnimation}
-                        disabled={animAction > 0}
-                    >
-                        Random Action
-                    </Button>
                     {/* <Button
                         className="w-[200px] bp4-intent-danger"
                         onClick={() => clearHistory()}
@@ -173,18 +167,56 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                             />
                         )}
                         {isTyping > 0 && <TypingPane name={agent.meta.name} />}
+                        <UserInputPane addMessage={addUserMessage} uid={uid} />
                     </div>
 
-                    <UnityPane
-                        profile={getMediaWithDefault(
-                            agent.meta.profile,
-                            DEFAULT_IMAGES['profile']
-                        )}
-                        unityProvider={unityProvider}
-                        isLoaded={isLoaded}
-                    />
+                    <div className="flex flex-col flex-[3] relative m-[10px]">
+                        <UnityPane
+                            profile={getMediaWithDefault(
+                                agent.meta.profile,
+                                DEFAULT_IMAGES['profile']
+                            )}
+                            unityProvider={unityProvider}
+                            isLoaded={isLoaded}
+                        />
+                        {/* ✅ Styled box under UnityPane */}
+                        <div
+                            className="flex flex-row gap-[12px] bg-[#f5f5f5] opacity-100 p-[4px] items-center flex justify-center"
+                            style={{
+                                borderRadius: '0px 0px 16px 16px',
+                                backgroundRepeat: 'repeat',
+                                backgroundOrigin: 'padding-box',
+                            }}
+                        >
+                            <button
+                                className="border-[1px] border-[#67677466] rounded-[12px] p-[4px]"
+                                onClick={generateRandomAnimation}
+                                disabled={animAction > 0}
+                            >
+                                <Image
+                                    src="happy-icon.svg"
+                                    width={24}
+                                    height={24}
+                                    draggable={false}
+                                    alt="Attachment icon"
+                                />
+                            </button>
+                            <button
+                                className="border-[1px] border-[#6767741A] rounded-[12px] p-[6px]"
+                                onClick={generateRandomAnimation}
+                                disabled={animAction > 0}
+                            >
+                                <Image
+                                    src="phone-icon.svg"
+                                    width={24}
+                                    height={24}
+                                    draggable={false}
+                                    alt="Attachment icon"
+                                />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <UserInputPane addMessage={addUserMessage} uid={uid} />
             </div>
         );
     };

@@ -1,0 +1,7 @@
+<svg id="Icon_happy" data-name="Icon / happy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Icon_happy_Frame_Background_" data-name="Icon / happy [Frame Background]" width="24" height="24" fill="none"/>
+  <path id="icon" d="M20,10A10,10,0,1,1,10,0,10.011,10.011,0,0,1,20,10Zm-2,0a8,8,0,1,0-8,8A8.009,8.009,0,0,0,18,10Z" transform="translate(2 2)" fill="#676774"/>
+  <path id="icon-2" data-name="icon" d="M5,8.5A1.5,1.5,0,1,1,6.5,10,1.5,1.5,0,0,1,5,8.5Z" transform="translate(2 2)" fill="#676774"/>
+  <path id="icon-3" data-name="icon" d="M12,8.493a1.493,1.493,0,1,1,1.493,1.493A1.493,1.493,0,0,1,12,8.493Z" transform="translate(2 2)" fill="#676774"/>
+  <path id="icon-4" data-name="icon" d="M5,12H15s-1,4-5,4S5,12,5,12Z" transform="translate(2 2)" fill="#676774"/>
+</svg>

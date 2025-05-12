@@ -151,9 +151,9 @@ const UserInputPane: React.FC<{
 
     return (
         <div className="h-auto flex flex-col gap-0 items-center justify-center py-[11px] px-[16px] z-10">
-            <div className=" w-[100%] bg-[#051b29] rounded-[19px] flex flex-col gap-[10px] py-[4px] pr-[4px] pl-[8px]">
+            <div className=" w-[100%] bg-[#F5F5F5] rounded-[16px] flex flex-col gap-[10px] py-[6px] pr-[4px] pl-[8px]">
                 {previewUrl && (
-                    <div className="w-full mb-2 ml-[10px] flex justify-start  bg-[#051b29] py-[12px]">
+                    <div className="w-full mb-2 ml-[10px] flex justify-start bg-[#F5F5F5] py-[12px]">
                         <img
                             src={previewUrl}
                             alt="Image preview"
@@ -168,18 +168,7 @@ const UserInputPane: React.FC<{
                         </div>
                     </div>
                 )}
-                <div className="flex flex-row gap-[10px] justify-center items-center">
-                    <input
-                        className="flex-1 ml-[10px] bg-[#051b29] placeholder:text-[rgba(132, 132, 132, 0.5)] text-left text-white"
-                        style={{
-                            font: 'normal normal medium 11px/14px Montserrat',
-                        }}
-                        value={msg}
-                        onChange={x => setMsg(x.currentTarget.value)}
-                        onKeyUp={x => checkSubmit(x.key)}
-                        placeholder="Ask or say something..."
-                    />
-
+                <div className="flex flex-row gap-[8px] justify-center items-center">
                     <input
                         type="file"
                         accept="image/*" // change to accept="*" for all file types
@@ -188,22 +177,58 @@ const UserInputPane: React.FC<{
                         style={{display: 'none'}}
                     />
                     <div
-                        className="w-[32px] bg-white h-[32px] rounded-[50%] flex justify-center items-center cursor-pointer"
+                        className="w-[32px] h-[32px] flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px]"
                         onClick={() => fileInputRef.current?.click()}
                         title="Attach file"
                     >
                         <div className="w-[20px] h-[20px] relative">
                             <Image
-                                src="clip-icon.png"
+                                src="attachment.svg"
                                 fill
                                 draggable={false}
-                                alt="Clip icon"
+                                alt="Attachment icon"
                             />
                         </div>
                     </div>
+                    <input
+                        className="flex-1 h-full items-center px-2 placeholder:text-[rgba(132, 132, 132, 0.5)] text-left border-[#67677466] border-[1px] rounded-[12px]"
+                        style={{
+                            font: 'normal normal medium 11px/14px Montserrat',
+                        }}
+                        value={msg}
+                        onChange={x => setMsg(x.currentTarget.value)}
+                        onKeyUp={x => checkSubmit(x.key)}
+                        placeholder="Say something to *Avatar Name*"
+                    />
 
                     <div
-                        className="w-[32px] bg-white h-[32px] rounded-[50%] flex justify-center items-center cursor-pointer"
+                        className={`w-[32px] h-[32px] flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px] ${msg.trim() === '' ? '' : 'bg-[#012F44]'}`}
+                        onClick={sendButtonClicked}
+                    >
+                        {loading ? (
+                            <div className="w-[18px] h-[18px] animate-spin border-2 border-white border-t-transparent rounded-full" />
+                        ) : (
+                            <div className="w-[20px] h-[20px] relative">
+                                {msg.trim() === '' ? (
+                                    <Image
+                                        src="suggestion-icon.svg"
+                                        fill
+                                        draggable={false}
+                                        alt="Send icon"
+                                    />
+                                ) : (
+                                    <Image
+                                        src="send-icon.svg"
+                                        fill
+                                        draggable={false}
+                                        alt="Send icon"
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div
+                        className="w-[32px] h-[32px] flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px]"
                         onClick={handleMicrophoneClick}
                     >
                         <div className="w-[20px] h-[20px] relative">
@@ -211,7 +236,7 @@ const UserInputPane: React.FC<{
                                 src={
                                     isListening
                                         ? 'listening-icon.png'
-                                        : 'microphone-icon.png'
+                                        : 'microphone-icon.svg'
                                 }
                                 fill
                                 draggable={false}
@@ -222,23 +247,6 @@ const UserInputPane: React.FC<{
                                 }
                             />
                         </div>
-                    </div>
-                    <div
-                        className="w-[32px] h-[32px] bg-[#00a4f6] rounded-[50%] flex justify-center items-center cursor-pointer"
-                        onClick={sendButtonClicked}
-                    >
-                        {loading ? (
-                            <div className="w-[18px] h-[18px] animate-spin border-2 border-white border-t-transparent rounded-full" />
-                        ) : (
-                            <div className="w-[15px] h-[14px] relative">
-                                <Image
-                                    src="send-icon.png"
-                                    fill
-                                    draggable={false}
-                                    alt="Send icon"
-                                />
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

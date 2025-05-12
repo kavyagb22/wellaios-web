@@ -1,0 +1,5 @@
+<svg id="Icon_stop-circle" data-name="Icon / stop-circle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <rect id="Icon_stop-circle_Frame_Background_" data-name="Icon / stop-circle [Frame Background]" width="20" height="20" fill="none"/>
+  <path id="icon" d="M16,8A8,8,0,1,1,8,0,8.009,8.009,0,0,1,16,8ZM14.4,8A6.4,6.4,0,1,0,8,14.4,6.407,6.407,0,0,0,14.4,8Z" transform="translate(2 2)" fill="#676774"/>
+  <path id="icon-2" data-name="icon" d="M7,7h6v6H7Z" fill="#676774"/>
+</svg>

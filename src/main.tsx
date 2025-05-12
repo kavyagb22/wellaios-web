@@ -44,7 +44,7 @@ const MainPage: React.FC = function () {
             {agent ? (
                 <div className="h-[100vh] w-[100vw] min-w-[100vw] relative">
                     <div className="absolute inset-0">
-                        <Image
+                        {/* <Image
                             src={getMediaWithDefault(
                                 agent.dna.background,
                                 DEFAULT_IMAGES['bg']
@@ -53,10 +53,10 @@ const MainPage: React.FC = function () {
                             className="object-cover"
                             alt="Background"
                             draggable={false}
-                        />
+                        /> */}
                     </div>
                     <div className="absolute flex flex-col inset-0">
-                        <Header agent={agent} />
+                        {/* <Header agent={agent} /> */}
                         <ChatPane agent={agent} uid={uid} />
                     </div>
                 </div>
