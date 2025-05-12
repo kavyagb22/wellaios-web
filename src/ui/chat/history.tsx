@@ -154,60 +154,96 @@ const ChatItem: React.FC<{
                                 </Markdown>
                             </div>
                         </MsgCard>
-                        <div className="flex flex-row gap-[6px] ml-[16px]">
-                            <AudioButton
-                                agent={agent}
-                                playingAudio={playingAudio}
-                                playingAnimation={playingAnimation}
-                                playingActionAnimation={playingActionAnimation}
-                                text={item.content}
-                                emotion={item.emotion}
-                                startTalking={startTalking}
-                                sendMessage={sendMessage}
-                                globalVolume={globalVolume}
-                                onGlobalVolumeChange={onGlobalVolumeChange}
-                            />
-                            <CopyButton content={item.content} />
-                            <RedoButton />
-                            <LinkButton />
+                        <div className="w-full flex flex-row items-center justify-between ml-[16px]">
+                            <div className="flex flex-row gap-[6px] items-center">
+                                <AudioButton
+                                    agent={agent}
+                                    playingAudio={playingAudio}
+                                    playingAnimation={playingAnimation}
+                                    playingActionAnimation={
+                                        playingActionAnimation
+                                    }
+                                    text={item.content}
+                                    emotion={item.emotion}
+                                    startTalking={startTalking}
+                                    sendMessage={sendMessage}
+                                    globalVolume={globalVolume}
+                                    onGlobalVolumeChange={onGlobalVolumeChange}
+                                />
+                                <CopyButton content={item.content} />
+                                <RedoButton />
+                                <LinkButton />
+                            </div>
+                            <div className="text-[#a6a6b9] text-[12px]">
+                                {new Date(
+                                    item.timestamp * 1000
+                                ).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
             ) : (
                 <MsgCard msgrole={item.role}>
-                    {/* <Markdown components={mComponents}>
+                    <div className="flex gap-[4px] flex-col">
+                        <div>
+                            <div className="flex flex-col items-center text-left">
+                                {/* First render images */}
+                                {Array.isArray(item.content) &&
+                                    item.content
+                                        .filter(
+                                            part => part.type === 'image_url'
+                                        )
+                                        .map((part, idx) => (
+                                            <div
+                                                key={`img-${idx}`}
+                                                className="mb-2"
+                                            >
+                                                <Image
+                                                    src={
+                                                        (part as any).image_url
+                                                            .url
+                                                    }
+                                                    alt="User uploaded"
+                                                    width={220}
+                                                    height={220}
+                                                    className="rounded-md object-contain"
+                                                />
+                                            </div>
+                                        ))}
+
+                                {/* Then render text */}
+                                {Array.isArray(item.content) &&
+                                    item.content
+                                        .filter(part => part.type === 'text')
+                                        .map((part, idx) => (
+                                            <Markdown
+                                                key={`text-${idx}`}
+                                                components={mComponents}
+                                                className="text-[14px]"
+                                            >
+                                                {(part as any).text}
+                                            </Markdown>
+                                        ))}
+                            </div>
+                        </div>
+                        {/* <Markdown components={mComponents}>
                             {item.content}
                         </Markdown> */}
-                    <div className="flex flex-col items-center text-left">
-                        {/* First render images */}
-                        {Array.isArray(item.content) &&
-                            item.content
-                                .filter(part => part.type === 'image_url')
-                                .map((part, idx) => (
-                                    <div key={`img-${idx}`} className="mb-2">
-                                        <Image
-                                            src={(part as any).image_url.url}
-                                            alt="User uploaded"
-                                            width={220}
-                                            height={220}
-                                            className="rounded-md object-contain"
-                                        />
-                                    </div>
-                                ))}
 
-                        {/* Then render text */}
-                        {Array.isArray(item.content) &&
-                            item.content
-                                .filter(part => part.type === 'text')
-                                .map((part, idx) => (
-                                    <Markdown
-                                        key={`text-${idx}`}
-                                        components={mComponents}
-                                        className="text-[14px]"
-                                    >
-                                        {(part as any).text}
-                                    </Markdown>
-                                ))}
+                        <div className="text-[#a6a6b9] text-[12px] text-right self-end">
+                            {new Date(item.timestamp * 1000).toLocaleTimeString(
+                                [],
+                                {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                }
+                            )}
+                        </div>
                     </div>
                 </MsgCard>
             )}
@@ -241,7 +277,7 @@ const MsgCard: React.FC<{children?: ReactNode; msgrole: ChatRoleType}> =
                     backgroundColor: isAssistant ? '' : '#4BADFF1A',
                     font: 'normal normal medium 11px/15px Montserrat',
                 }}
-                className={`${isAssistant ? 'max-w-[90%]' : 'max-w-[80%]'} pointer-events-none touch-none text-[13px] text-left flex justify-between ${!isAssistant ? 'bg-[#E6F7FF]' : ''}`}
+                className={`${isAssistant ? 'max-w-full' : 'max-w-[80%]'} pointer-events-none touch-none text-[13px] text-left flex justify-between ${!isAssistant ? 'bg-[#E6F7FF]' : ''}`}
             >
                 {children}
             </div>
@@ -297,7 +333,7 @@ const CopyButton: React.FC<{content: string}> = function ({content}) {
     return (
         <CustomPopover tooltip="Copy">
             <button onClick={handleCopy} style={{pointerEvents: 'all'}}>
-                <div className="bg-[#f6f6f6] rounded-[4px] p-[4px] flex flex-row items-center">
+                <div className="bg-[#f6f6f6] rounded-[4px] p-[6px] flex flex-row items-center">
                     <Image
                         src={copied ? 'check-icon.svg' : 'copy-icon.svg'}
                         width={16}
@@ -350,13 +386,13 @@ const LinkButton = function () {
     return (
         <CustomPopover tooltip="Sources">
             <button style={{pointerEvents: 'all'}}>
-                <div className="bg-[#f6f6f6] rounded-[4px] p-[4px]">
+                <div className="bg-[#f6f6f6] rounded-[4px] p-[6px] flex flex-row gap-[4px]">
                     <Image
                         src="link-icon.svg"
                         width={16}
                         height={16}
                         draggable={false}
-                        alt="copy"
+                        alt="sync"
                     />
                 </div>
             </button>
