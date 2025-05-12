@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="Group_2305" data-name="Group 2305" transform="translate(-4 -4)">
+    <circle id="Ellipse_49" data-name="Ellipse 49" cx="12" cy="12" r="12" transform="translate(4 4)" fill="#4badff"/>
+    <g id="Icon_bolt-circle" data-name="Icon / bolt-circle" transform="translate(4 4)">
+      <rect id="Icon_bolt-circle_Frame_Background_" data-name="Icon / bolt-circle [Frame Background]" width="24" height="24" fill="none"/>
+      <path id="icon" d="M20,10A10,10,0,1,1,10,0,10.011,10.011,0,0,1,20,10Zm-2,0a8,8,0,1,0-8,8A8.009,8.009,0,0,0,18,10Z" transform="translate(2 2)" fill="#c9e5fc"/>
+      <path id="icon-2" data-name="icon" d="M11,9h4L9,16V11H5l6-7Z" transform="translate(2 2)" fill="#c9e5fc"/>
+    </g>
+  </g>
+</svg>

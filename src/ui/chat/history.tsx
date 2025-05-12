@@ -174,50 +174,42 @@ const ChatItem: React.FC<{
                     </div>
                 </div>
             ) : (
-                <div>
-                    <MsgCard msgrole={item.role}>
-                        {/* <Markdown components={mComponents}>
+                <MsgCard msgrole={item.role}>
+                    {/* <Markdown components={mComponents}>
                             {item.content}
                         </Markdown> */}
-                        <div className="flex flex-col items-center text-center">
-                            {/* First render images */}
-                            {Array.isArray(item.content) &&
-                                item.content
-                                    .filter(part => part.type === 'image_url')
-                                    .map((part, idx) => (
-                                        <div
-                                            key={`img-${idx}`}
-                                            className="mb-2"
-                                        >
-                                            <Image
-                                                src={
-                                                    (part as any).image_url.url
-                                                }
-                                                alt="User uploaded"
-                                                width={220}
-                                                height={220}
-                                                className="rounded-md object-contain"
-                                            />
-                                        </div>
-                                    ))}
+                    <div className="flex flex-col items-center text-left">
+                        {/* First render images */}
+                        {Array.isArray(item.content) &&
+                            item.content
+                                .filter(part => part.type === 'image_url')
+                                .map((part, idx) => (
+                                    <div key={`img-${idx}`} className="mb-2">
+                                        <Image
+                                            src={(part as any).image_url.url}
+                                            alt="User uploaded"
+                                            width={220}
+                                            height={220}
+                                            className="rounded-md object-contain"
+                                        />
+                                    </div>
+                                ))}
 
-                            {/* Then render text */}
-                            {Array.isArray(item.content) &&
-                                item.content
-                                    .filter(part => part.type === 'text')
-                                    .map((part, idx) => (
-                                        <Markdown
-                                            key={`text-${idx}`}
-                                            components={mComponents}
-                                            className="text-[14px]"
-                                        >
-                                            {(part as any).text}
-                                        </Markdown>
-                                    ))}
-                        </div>
-                    </MsgCard>
-                    {/* <MsgIcon msgrole={item.role} /> */}
-                </div>
+                        {/* Then render text */}
+                        {Array.isArray(item.content) &&
+                            item.content
+                                .filter(part => part.type === 'text')
+                                .map((part, idx) => (
+                                    <Markdown
+                                        key={`text-${idx}`}
+                                        components={mComponents}
+                                        className="text-[14px]"
+                                    >
+                                        {(part as any).text}
+                                    </Markdown>
+                                ))}
+                    </div>
+                </MsgCard>
             )}
         </div>
     );
@@ -235,6 +227,7 @@ const mComponents: Components = {
 
 const MsgCard: React.FC<{children?: ReactNode; msgrole: ChatRoleType}> =
     function ({children, msgrole}) {
+        const isAssistant = msgrole === 'assistant';
         return (
             <div
                 style={{
@@ -242,16 +235,13 @@ const MsgCard: React.FC<{children?: ReactNode; msgrole: ChatRoleType}> =
                     opacity: 0.85,
                     margin: 2,
                     padding: 10,
-                    marginLeft: msgrole === 'assistant' ? 6 : undefined,
-                    marginRight: msgrole !== 'assistant' ? 6 : 6,
-                    // color: msgrole === 'assistant' ? 'white' : 'black',
+                    marginLeft: isAssistant ? 6 : undefined,
+                    marginRight: !isAssistant ? 6 : 6,
                     overflowWrap: 'break-word',
-                    backgroundColor: msgrole === 'assistant' ? '' : '#4BADFF1A',
+                    backgroundColor: isAssistant ? '' : '#4BADFF1A',
                     font: 'normal normal medium 11px/15px Montserrat',
                 }}
-                className={
-                    'pointer-events-none touch-none text-[13px] text-left max-w-[90%] flex justify-between'
-                }
+                className={`${isAssistant ? 'max-w-[90%]' : 'max-w-[80%]'} pointer-events-none touch-none text-[13px] text-left flex justify-between ${!isAssistant ? 'bg-[#E6F7FF]' : ''}`}
             >
                 {children}
             </div>
@@ -330,14 +320,26 @@ const RedoButton = function () {
     return (
         <CustomPopover tooltip="Retry">
             <button style={{pointerEvents: 'all'}}>
-                <div className="bg-[#f6f6f6] rounded-[4px] p-[4px]">
+                <div className="bg-[#f6f6f6] rounded-[4px] p-[4px] flex flex-row gap-[4px]">
                     <Image
                         src="sync-icon.svg"
                         width={16}
                         height={16}
                         draggable={false}
-                        alt="copy"
+                        alt="sync"
                     />
+                    <div className="flex flex-row items-center">
+                        <div className="font-bold text-[12px] text-[#012f44]">
+                            -2
+                        </div>
+                        <Image
+                            src="energy-icon.svg"
+                            width={20}
+                            height={20}
+                            draggable={false}
+                            alt="audio"
+                        />
+                    </div>
                 </div>
             </button>
         </CustomPopover>

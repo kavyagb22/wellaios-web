@@ -115,7 +115,7 @@ const AudioButton: React.FC<{
                                 </div>
                             </button>
                         ) : (
-                            <div className="bg-[#f6f6f6] rounded-[4px] p-[4px]">
+                            <div className="bg-[#f6f6f6] rounded-[4px] p-[4px] flex flex-row gap-[4px]">
                                 <Image
                                     src="audio-icon.svg"
                                     width={16}
@@ -123,6 +123,18 @@ const AudioButton: React.FC<{
                                     draggable={false}
                                     alt="audio"
                                 />
+                                <div className="flex flex-row items-center">
+                                    <div className="font-bold text-[12px] text-[#012f44]">
+                                        -2
+                                    </div>
+                                    <Image
+                                        src="energy-icon.svg"
+                                        width={20}
+                                        height={20}
+                                        draggable={false}
+                                        alt="audio"
+                                    />
+                                </div>
                             </div>
                         )}
                     </button>
