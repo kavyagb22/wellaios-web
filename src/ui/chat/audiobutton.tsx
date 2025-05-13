@@ -23,6 +23,9 @@ const AudioButton: React.FC<{
     ) => void;
     globalVolume: number;
     onGlobalVolumeChange: (volume: number) => void;
+    isActive: boolean;
+    disabled: boolean;
+    onStop: () => void;
 }> = ({
     agent,
     playingAudio,
@@ -34,6 +37,9 @@ const AudioButton: React.FC<{
     sendMessage,
     globalVolume,
     onGlobalVolumeChange,
+    isActive,
+    disabled,
+    onStop,
 }) => {
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     // const [volume, setVolume] = useState(MAX_VOLUME); // 0 - 100
@@ -41,6 +47,7 @@ const AudioButton: React.FC<{
 
     // Handle audio play logic
     const playAudio = async () => {
+        if (disabled) return;
         if (!playingAudio) {
             startTalking();
             if (!audioUrl) {
@@ -89,15 +96,40 @@ const AudioButton: React.FC<{
         }
         sendMessage('Kiki01', 'stopSpeak', ''); // Tell Unity to stop speaking
         sendMessage('Kiki01', 'stopAnimation', ''); // Tell Unity to stop any animation
+        onStop(); // Reset activeAudioIndex
     };
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleEnded = () => {
+            sendMessage('Kiki01', 'stopSpeak', '');
+            sendMessage('Kiki01', 'stopAnimation', '');
+            onStop(); // reset activeAudioIndex
+        };
+
+        audio.addEventListener('ended', handleEnded);
+
+        return () => {
+            audio.removeEventListener('ended', handleEnded);
+        };
+    }, [onStop, sendMessage]);
 
     return (
         <CustomPopover tooltip="Read aloud">
             {!playingAnimation && !playingActionAnimation && (
                 <div className="flex gap-[4px] bg-[#f6f6f6] rounded-[4px] ">
                     {/* Audio play button logic */}
-                    <button style={{pointerEvents: 'all'}} onClick={playAudio}>
-                        {playingAudio ? (
+                    <button
+                        style={{
+                            pointerEvents: disabled ? 'none' : 'all',
+                            opacity: disabled ? 0.4 : 1,
+                        }}
+                        onClick={playAudio}
+                        disabled={disabled}
+                    >
+                        {isActive && playingAudio ? (
                             // <Spinner size={16} />
                             <button
                                 style={{pointerEvents: 'all'}}
@@ -140,7 +172,7 @@ const AudioButton: React.FC<{
                     </button>
 
                     {/* Volume control visible only when audio is playing */}
-                    {playingAudio && (
+                    {isActive && playingAudio && (
                         <div className="flex items-center gap-[6px] pr-[8px]">
                             <input
                                 type="range"
@@ -166,9 +198,7 @@ const AudioButton: React.FC<{
                     )}
 
                     {/* Audio element */}
-                    {audioUrl && (
-                        <audio ref={audioRef} src={audioUrl} loop muted />
-                    )}
+                    {audioUrl && <audio ref={audioRef} src={audioUrl} />}
                 </div>
             )}
         </CustomPopover>

@@ -25,6 +25,9 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const [talking, setTalking] = useState<number>(0);
         const [emoting, setEmoting] = useState<number>(0);
         const [animAction, setAnimAction] = useState<number>(0);
+        const [activeAudioIndex, setActiveAudioIndex] = useState<number | null>(
+            null
+        );
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
             useUnityContext({
                 loaderUrl: 'unity/unity.loader.js',
@@ -37,7 +40,10 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const doneTyping = () => setIsTyping(t => Math.max(t - 1, 0));
 
         const startTalking = () => setTalking(t => t + 1);
-        const doneTalking = () => setTalking(t => Math.max(t - 1, 0));
+        const doneTalking = () => {
+            setTalking(t => Math.max(t - 1, 0));
+            setActiveAudioIndex(null);
+        };
 
         const startEmoting = () => setEmoting(t => t + 1);
         const doneEmoting = () => {
@@ -164,6 +170,8 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                                 sendMessage={sendMessage}
                                 emoting={emoting > 0}
                                 animAction={animAction > 0}
+                                activeAudioIndex={activeAudioIndex}
+                                setActiveAudioIndex={setActiveAudioIndex}
                             />
                         )}
                         {isTyping > 0 && <TypingPane name={agent.meta.name} />}

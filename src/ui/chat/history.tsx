@@ -29,6 +29,8 @@ const ChatHistory: React.FC<{
         method: string,
         params: ReactUnityEventParameter
     ) => void;
+    activeAudioIndex: number | null;
+    setActiveAudioIndex: (index: number | null) => void;
 }> = function ({
     history,
     agent,
@@ -38,6 +40,8 @@ const ChatHistory: React.FC<{
     animAction,
     isLoaded,
     sendMessage,
+    activeAudioIndex,
+    setActiveAudioIndex,
 }) {
     const chatWinDiv = useRef<HTMLDivElement | null>(null);
     const userPic = getMediaWithDefault(
@@ -81,6 +85,9 @@ const ChatHistory: React.FC<{
                                 startTalking={startTalking}
                                 sendMessage={sendMessage}
                                 globalVolume={globalVolume}
+                                setActiveAudioIndex={setActiveAudioIndex}
+                                isActive={activeAudioIndex === i}
+                                activeAudioIndex={activeAudioIndex}
                                 onGlobalVolumeChange={handleGlobalVolumeChange}
                             />
                         ))
@@ -107,6 +114,9 @@ const ChatItem: React.FC<{
     ) => void;
     globalVolume: number;
     onGlobalVolumeChange: (volume: number) => void;
+    setActiveAudioIndex: (index: number | null) => void;
+    isActive: boolean;
+    activeAudioIndex: number | null;
 }> = function ({
     index,
     agent,
@@ -119,6 +129,9 @@ const ChatItem: React.FC<{
     sendMessage,
     globalVolume,
     onGlobalVolumeChange,
+    setActiveAudioIndex,
+    isActive,
+    activeAudioIndex,
 }) {
     const itemRef = useRef<HTMLDivElement | null>(null);
 
@@ -165,10 +178,21 @@ const ChatItem: React.FC<{
                                     }
                                     text={item.content}
                                     emotion={item.emotion}
-                                    startTalking={startTalking}
+                                    startTalking={() => {
+                                        startTalking();
+                                        setActiveAudioIndex(index);
+                                    }}
                                     sendMessage={sendMessage}
                                     globalVolume={globalVolume}
                                     onGlobalVolumeChange={onGlobalVolumeChange}
+                                    isActive={isActive}
+                                    disabled={
+                                        activeAudioIndex !== null && !isActive
+                                    }
+                                    onStop={() => {
+                                        console.log('Parent received onStop');
+                                        setActiveAudioIndex(null);
+                                    }}
                                 />
                                 <CopyButton content={item.content} />
                                 <RedoButton />
