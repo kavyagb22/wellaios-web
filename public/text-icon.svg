@@ -1,0 +1,5 @@
+<svg id="Icon_file" data-name="Icon / file" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Icon_file_Frame_Background_" data-name="Icon / file [Frame Background]" width="24" height="24" fill="none"/>
+  <path id="icon" d="M15.936,6.679a.952.952,0,0,1,.051.259c0,.022.013.041.013.062V18a2,2,0,0,1-2,2H2a2,2,0,0,1-2-2V2A2,2,0,0,1,2,0H9c.021,0,.04.011.061.013A.991.991,0,0,1,9.32.064.948.948,0,0,1,9.414.1a1,1,0,0,1,.293.2l6,6a1,1,0,0,1,.2.293.732.732,0,0,1,.033.093ZM10,3.414V6h2.586ZM14,18,14,8H9A1,1,0,0,1,8,7V2H2V18Z" transform="translate(4 2)" fill="#676774"/>
+  <path id="icon-2" data-name="icon" d="M4,10h8v2H4Zm0,4h8v2H4ZM4,6H6V8H4Z" transform="translate(4 2)" fill="#676774"/>
+</svg>

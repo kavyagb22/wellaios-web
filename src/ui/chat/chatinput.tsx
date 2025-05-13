@@ -17,6 +17,7 @@ const UserInputPane: React.FC<{
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
+    const [attachFile, setAttachFile] = useState<boolean>(false);
 
     async function sendButtonClicked() {
         if (loading) return; // Prevent double click
@@ -87,30 +88,53 @@ const UserInputPane: React.FC<{
         <div className="h-auto flex flex-col gap-0 items-center justify-center py-[11px] px-[16px] z-10">
             <div className=" w-[100%] bg-[#F5F5F5] rounded-[16px] flex flex-col gap-[10px] py-[6px] pr-[4px] pl-[8px]">
                 <div className="flex flex-row gap-[8px] justify-center items-end">
-                    <UserFileInput
-                        setPreviewUrls={setPreviewUrls}
-                        setSelectedFiles={setSelectedFiles}
-                    />
-                    <UserInputField
-                        sendButtonClicked={sendButtonClicked}
-                        inputRef={inputRef}
-                        msg={msg}
-                        setMsg={setMsg}
-                    />
+                    {attachFile ? (
+                        <>
+                            <AttachButton
+                                setAttachFile={setAttachFile}
+                                setPreviewUrls={setPreviewUrls}
+                                setSelectedFiles={setSelectedFiles}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <div
+                                className="w-[32px] h-[32px] flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px]"
+                                onClick={() => setAttachFile(true)}
+                                title="Attach file"
+                            >
+                                <div className="w-[20px] h-[20px] relative">
+                                    <Image
+                                        src="attachment.svg"
+                                        fill
+                                        draggable={false}
+                                        alt="Attachment icon"
+                                    />
+                                </div>
+                            </div>
+                            <UserInputField
+                                sendButtonClicked={sendButtonClicked}
+                                inputRef={inputRef}
+                                msg={msg}
+                                setMsg={setMsg}
+                            />
 
-                    <SendButton
-                        sendButtonClicked={sendButtonClicked}
-                        loading={loading}
-                        msg={msg}
-                        selectedFiles={selectedFiles}
-                    />
-                    <MicrophoneButton setMsg={setMsg} />
+                            <SendButton
+                                sendButtonClicked={sendButtonClicked}
+                                loading={loading}
+                                msg={msg}
+                                selectedFiles={selectedFiles}
+                            />
+                            <MicrophoneButton setMsg={setMsg} />
+                        </>
+                    )}
                 </div>
                 {previewUrls.length > 0 && (
-                    <ImagePreviewList
+                    <PreviewList
                         previewUrls={previewUrls}
                         setPreviewUrls={setPreviewUrls}
                         setSelectedFiles={setSelectedFiles}
+                        selectedFiles={selectedFiles}
                     />
                 )}
             </div>
@@ -118,11 +142,158 @@ const UserInputPane: React.FC<{
     );
 };
 
-const ImagePreviewList: React.FC<{
-    previewUrls: string[];
+const AttachButton: React.FC<{
     setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
     setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
-}> = ({previewUrls, setPreviewUrls, setSelectedFiles}) => {
+    setAttachFile: (attachFile: boolean) => void;
+}> = ({setPreviewUrls, setSelectedFiles, setAttachFile}) => {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [acceptType, setAcceptType] = useState<string>('');
+
+    const handleFileTypeClick = (type: (typeof fileTypes)[0]) => {
+        setAcceptType(type.accept);
+        setTimeout(() => {
+            fileInputRef.current?.click();
+        }, 0);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const files = Array.from(e.target.files);
+
+        const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+        setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
+        setSelectedFiles(prevSelected => [...prevSelected, ...files]);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const fileTypes: {name: string; icon: string; accept: string}[] = [
+        {
+            name: 'Image',
+            icon: 'image-icon.svg',
+            accept: 'image/*',
+        },
+
+        {
+            name: 'PDF',
+            icon: 'pdf-icon.svg',
+            accept: 'application/pdf',
+        },
+        {
+            name: 'TXT',
+            icon: 'text-icon.svg',
+            accept: 'text/plain',
+        },
+        {
+            name: 'MP3',
+            icon: 'audio-icon.svg',
+            accept: 'audio/mpeg',
+        },
+        {
+            name: 'Youtube',
+            icon: 'youtube-icon.svg',
+            accept: 'url',
+        },
+        {
+            name: 'Website',
+            icon: 'website-icon.svg',
+            accept: 'url',
+        },
+    ];
+
+    return (
+        <>
+            <div className="flex flex-col py-[4px] mr-[4px] gap-[12px] items-center justify-center w-full">
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept={acceptType}
+                    style={{display: 'none'}}
+                    multiple
+                />
+                <div className="flex flex-row justify-between items-center w-[100%]">
+                    <div className="flex flex-row gap-[4px] items-center">
+                        <Image
+                            src="attachment-icon-blue.svg"
+                            width={20}
+                            height={20}
+                            draggable={false}
+                            alt="Attachment icon"
+                        />
+                        <span className="text-[12px] text-[#676774]">
+                            Attach a file or URL:
+                        </span>
+                    </div>
+                    <div
+                        className="border-[1px] border-[#67677466] rounded-full p-[1px] cursor-pointer"
+                        onClick={() => setAttachFile(false)}
+                    >
+                        <Image
+                            src="close-icon-white.svg"
+                            width={20}
+                            height={20}
+                            draggable={false}
+                            alt="Attachment icon"
+                        />
+                    </div>
+                </div>
+                <FileTypeButton
+                    fileTypes={fileTypes}
+                    handleFileTypeClick={handleFileTypeClick}
+                />
+            </div>
+        </>
+    );
+};
+
+const FileTypeButton: React.FC<{
+    fileTypes: {name: string; icon: string; accept: string}[];
+    handleFileTypeClick: (type: {
+        name: string;
+        icon: string;
+        accept: string;
+    }) => void;
+}> = ({fileTypes, handleFileTypeClick}) => {
+    return (
+        <div className="flex flex-row justify-between w-full gap-[12px]">
+            {fileTypes.map((type, index) => (
+                <button
+                    className={`py-[6px] px-[12px] flex flex-row gap-[4px] items-center justify-center border-[1px] border-[#67677466] rounded-[12px] ${
+                        type.name === 'Youtube' || type.name === 'Website'
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                    }`}
+                    key={index}
+                    onClick={() => handleFileTypeClick(type)}
+                    disabled={
+                        type.name === 'Youtube' || type.name === 'Website'
+                    }
+                >
+                    <Image
+                        src={type.icon}
+                        width={20}
+                        height={20}
+                        draggable={false}
+                        alt="Icon"
+                    />
+                    <span className="text-[12px] text-[#676774]">
+                        {type.name}
+                    </span>
+                </button>
+            ))}
+        </div>
+    );
+};
+
+const PreviewList: React.FC<{
+    previewUrls: string[];
+    selectedFiles: File[];
+    setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
+    setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
+}> = ({previewUrls, setPreviewUrls, setSelectedFiles, selectedFiles}) => {
     const handleRemovePreview = (indexToRemove: number) => {
         setPreviewUrls(prevUrls =>
             prevUrls.filter((_, index) => index !== indexToRemove)
@@ -132,6 +303,13 @@ const ImagePreviewList: React.FC<{
         );
         // Optionally, you might want to handle cancelling the upload here if it's in progress
     };
+
+    const formatFileSize = (bytes: number): string => {
+        if (bytes < 1024) return `${bytes}B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+    };
+
     return (
         <div
             style={{
@@ -146,30 +324,82 @@ const ImagePreviewList: React.FC<{
             }}
             className="w-full mb-2 flex gap-[8px] justify-start bg-[#F5F5F5] overflow-x-auto"
         >
-            {previewUrls.map((url, index) => (
-                <div key={index} className="relative">
-                    <div className="border-[1px] border-[#b2b3b3] rounded-[8px] p-[2px] mt-[8px]">
-                        <img
-                            src={url}
-                            alt={`Image preview ${index + 1}`}
-                            className="min-w-[48px] max-w-[48px] h-[48px] rounded-md object-cover object-center"
-                        />
+            {previewUrls.map((url, index) => {
+                const file = selectedFiles[index];
+                const isImage = file?.type.startsWith('image/');
+                const isPdf = file?.type === 'application/pdf';
+                const isText = file?.type === 'text/plain';
+                const isMp3 = file?.type === 'audio/mpeg';
+
+                return (
+                    <div key={index} className="relative">
+                        <div
+                            className={`border-[1px] border-[#b2b3b3] rounded-[8px]  mt-[8px] ${isImage ? 'w-[48px]' : 'p-[2px]'} h-[48px] flex items-center justify-center bg-white`}
+                        >
+                            {isImage ? (
+                                <img
+                                    src={url}
+                                    alt={`Preview ${index + 1}`}
+                                    className="p-[4px] min-w-[48px] max-w-[48px] h-[48px] rounded-md object-cover object-center"
+                                />
+                            ) : (
+                                <div className="flex px-[1px] flex-row gap-[4px] items-center justify-center text-center">
+                                    <div
+                                        className={` min-w-[40px] max-w-[40px] h-[40px] p-[8px] rounded-[4px] ${isPdf ? 'bg-[#DBEEFF]' : isText ? 'bg-[#F1F1F1]' : isMp3 ? 'bg-[#FFF3DB]' : 'bg-[#DBFFF3]'}`}
+                                    >
+                                        <Image
+                                            src={
+                                                isPdf
+                                                    ? 'file-blue.svg'
+                                                    : isText
+                                                      ? 'text-icon.svg'
+                                                      : isMp3
+                                                        ? 'audio-icon.svg'
+                                                        : ''
+                                            }
+                                            width={24}
+                                            height={24}
+                                            alt="File icon"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col align-left text-left">
+                                        <span className="text-[12px] min-w-[90px] max-w-[120px] truncate text-[#676774]">
+                                            {file?.name}
+                                        </span>
+                                        <span className="flex flex-row gap-[6px] items-center text-[12px] text-[#9b9b9b]">
+                                            <div>
+                                                {' '}
+                                                {isPdf
+                                                    ? 'PDF'
+                                                    : isText
+                                                      ? 'TXT'
+                                                      : isMp3
+                                                        ? 'MP3'
+                                                        : ''}
+                                            </div>
+                                            <div className="rounded-full w-[4px] h-[4px] bg-[#9B9B9B]" />
+                                            {formatFileSize(file.size)}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            onClick={() => handleRemovePreview(index)}
+                            className="absolute top-0 -right-2 bg-[#012f44] rounded-[4px] border-[1px] border-[#f6f6f6] w-[18px] h-[18px] flex items-center justify-center text-xs font-bold text-white cursor-pointer"
+                            title="Remove file"
+                        >
+                            <Image
+                                src="close-icon.svg"
+                                width={12}
+                                height={12}
+                                draggable={false}
+                                alt="Remove icon"
+                            />
+                        </div>
                     </div>
-                    <div
-                        onClick={() => handleRemovePreview(index)}
-                        className="absolute top-0 -right-2 bg-[#012f44] rounded-[4px] border-[1px] border-[#f6f6f6] w-[18px] h-[18px] flex items-center justify-center text-xs font-bold text-white cursor-pointer "
-                        title="Remove image"
-                    >
-                        <Image
-                            src="close-icon.svg"
-                            width={12}
-                            height={12}
-                            draggable={false}
-                            alt="Remove icon"
-                        />
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 };
@@ -348,50 +578,4 @@ const UserInputField: React.FC<{
     );
 };
 
-const UserFileInput: React.FC<{
-    setPreviewUrls: (previewUrls: string[]) => void;
-    setSelectedFiles: (selectedFiles: File[]) => void;
-}> = ({setPreviewUrls, setSelectedFiles}) => {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-        const files = Array.from(e.target.files);
-
-        const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-        setPreviewUrls([...newPreviewUrls]);
-        setSelectedFiles([...files]);
-
-        // Reset the input value so that the same file can be selected again
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
-    return (
-        <>
-            <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{display: 'none'}}
-                multiple // Add the 'multiple' attribute to allow multiple file selection
-            />
-            <div
-                className="w-[32px] h-[32px] flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px]"
-                onClick={() => fileInputRef.current?.click()}
-                title="Attach file"
-            >
-                <div className="w-[20px] h-[20px] relative">
-                    <Image
-                        src="attachment.svg"
-                        fill
-                        draggable={false}
-                        alt="Attachment icon"
-                    />
-                </div>
-            </div>
-        </>
-    );
-};
 export default UserInputPane;

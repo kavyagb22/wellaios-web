@@ -1,0 +1,4 @@
+<svg id="Icon_file-blank" data-name="Icon / file-blank" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Icon_file-blank_Frame_Background_" data-name="Icon / file-blank [Frame Background]" width="24" height="24" fill="none"/>
+  <path id="icon" d="M15.987,6.938c0,.022.013.041.013.062V18a2,2,0,0,1-2,2H2a2,2,0,0,1-2-2V2A2,2,0,0,1,2,0H9c.021,0,.04.011.062.013a.991.991,0,0,1,.259.051A.948.948,0,0,1,9.415.1a1,1,0,0,1,.293.2l6,6a1,1,0,0,1,.2.293c.013.031.022.062.033.094A.99.99,0,0,1,15.987,6.938ZM10,3.414V6h2.586ZM14,18,14,8H9A1,1,0,0,1,8,7V2H2V18Z" transform="translate(4 2)" fill="#1e4566"/>
+</svg>
