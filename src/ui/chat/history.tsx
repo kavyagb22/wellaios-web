@@ -6,7 +6,7 @@ import {
     Position,
     Spinner,
 } from '@blueprintjs/core';
-import {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import Markdown, {Components} from 'react-markdown';
 import {ChatRoleType, MsgType} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
@@ -152,125 +152,189 @@ const ChatItem: React.FC<{
             }}
         >
             {item.role === 'assistant' ? (
-                <div className="flex">
-                    <div className="mt-[12px]">
-                        <MsgIcon msgrole={item.role} userPic={userPic} />
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <MsgCard msgrole={item.role}>
-                            <div className="flex items-center">
-                                <Markdown
-                                    className="flex-col"
-                                    components={mComponents}
-                                >
-                                    {item.content}
-                                </Markdown>
-                            </div>
-                        </MsgCard>
-                        <div className="w-full flex flex-row items-center justify-between ml-[16px]">
-                            <div className="flex flex-row gap-[6px] items-center">
-                                <AudioButton
-                                    agent={agent}
-                                    playingAudio={playingAudio}
-                                    playingAnimation={playingAnimation}
-                                    playingActionAnimation={
-                                        playingActionAnimation
-                                    }
-                                    text={item.content}
-                                    emotion={item.emotion}
-                                    startTalking={() => {
-                                        startTalking();
-                                        setActiveAudioIndex(index);
-                                    }}
-                                    sendMessage={sendMessage}
-                                    globalVolume={globalVolume}
-                                    onGlobalVolumeChange={onGlobalVolumeChange}
-                                    isActive={isActive}
-                                    disabled={
-                                        activeAudioIndex !== null && !isActive
-                                    }
-                                    onStop={() => {
-                                        console.log('Parent received onStop');
-                                        setActiveAudioIndex(null);
-                                    }}
-                                />
-                                <CopyButton content={item.content} />
-                                <RedoButton />
-                                <LinkButton />
-                            </div>
-                            <div className="text-[#a6a6b9] text-[12px]">
-                                {new Date(
-                                    item.timestamp * 1000
-                                ).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                })}
+                <div className="flex flex-row justify-between w-full items-end">
+                    <div className="flex">
+                        <div className="mt-[12px]">
+                            <MsgIcon msgrole={item.role} userPic={userPic} />
+                        </div>
+                        <div className="flex flex-col items-start">
+                            <MsgCard msgrole={item.role}>
+                                <div className="flex flex-col text-left">
+                                    <ShowImageFromUrl item={item} />
+                                    <ShowTextContent item={item} />
+                                </div>
+                            </MsgCard>
+                            <div className="w-full flex flex-row items-center justify-between ml-[16px]">
+                                <div className="flex flex-row gap-[6px] items-center">
+                                    <AudioButton
+                                        agent={agent}
+                                        playingAudio={playingAudio}
+                                        playingAnimation={playingAnimation}
+                                        playingActionAnimation={
+                                            playingActionAnimation
+                                        }
+                                        text={
+                                            Array.isArray(item.content)
+                                                ? item.content.filter(
+                                                      part =>
+                                                          part.type === 'text'
+                                                  )[0].text
+                                                : item.content
+                                        }
+                                        emotion={item.emotion}
+                                        startTalking={() => {
+                                            startTalking();
+                                            setActiveAudioIndex(index);
+                                        }}
+                                        sendMessage={sendMessage}
+                                        globalVolume={globalVolume}
+                                        onGlobalVolumeChange={
+                                            onGlobalVolumeChange
+                                        }
+                                        isActive={isActive}
+                                        disabled={
+                                            activeAudioIndex !== null &&
+                                            !isActive
+                                        }
+                                        onStop={() => {
+                                            setActiveAudioIndex(null);
+                                        }}
+                                    />
+                                    <CopyButton
+                                        content={
+                                            Array.isArray(item.content)
+                                                ? item.content.filter(
+                                                      part =>
+                                                          part.type === 'text'
+                                                  )[0].text
+                                                : item.content
+                                        }
+                                    />
+                                    <RedoButton />
+                                    <LinkButton />
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="text-[#a6a6b9] text-[12px] mb-[12px] min-w-[50px]">
+                        <DisplayTime timestamp={item.timestamp} />
                     </div>
                 </div>
             ) : (
                 <MsgCard msgrole={item.role}>
                     <div className="flex gap-[4px] flex-col">
                         <div>
-                            <div className="flex flex-col items-center text-left">
-                                {/* First render images */}
-                                {Array.isArray(item.content) &&
-                                    item.content
-                                        .filter(
-                                            part => part.type === 'image_url'
-                                        )
-                                        .map((part, idx) => (
-                                            <div
-                                                key={`img-${idx}`}
-                                                className="mb-2"
-                                            >
-                                                <Image
-                                                    src={
-                                                        (part as any).image_url
-                                                            .url
-                                                    }
-                                                    alt="User uploaded"
-                                                    width={220}
-                                                    height={220}
-                                                    className="rounded-md object-contain"
-                                                />
-                                            </div>
-                                        ))}
-
-                                {/* Then render text */}
-                                {Array.isArray(item.content) &&
-                                    item.content
-                                        .filter(part => part.type === 'text')
-                                        .map((part, idx) => (
-                                            <Markdown
-                                                key={`text-${idx}`}
-                                                components={mComponents}
-                                                className="text-[14px]"
-                                            >
-                                                {(part as any).text}
-                                            </Markdown>
-                                        ))}
+                            <div className="flex flex-col text-left">
+                                <ShowImageFromUrl item={item} />
+                                <ShowTextContent item={item} />
                             </div>
                         </div>
-                        {/* <Markdown components={mComponents}>
-                            {item.content}
-                        </Markdown> */}
 
                         <div className="text-[#a6a6b9] text-[12px] text-right self-end">
-                            {new Date(item.timestamp * 1000).toLocaleTimeString(
-                                [],
-                                {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                }
-                            )}
+                            <DisplayTime timestamp={item.timestamp} />
                         </div>
                     </div>
                 </MsgCard>
             )}
+        </div>
+    );
+};
+
+const ShowImageFromUrl: React.FC<{item: MsgType}> = ({item}) => {
+    return (
+        <>
+            {Array.isArray(item.content) &&
+                item.content
+                    .filter(part => part.type === 'image_url')
+                    .map((part, idx) => (
+                        <div key={`img-${idx}`} className="mb-2">
+                            <LoadImage src={part.image_url.url} />
+                        </div>
+                    ))}
+        </>
+    );
+};
+
+const ShowTextContent: React.FC<{item: MsgType}> = ({item}) => {
+    return (
+        <>
+            {Array.isArray(item.content) ? (
+                item.content
+                    .filter(part => part.type === 'text')
+                    .map((part, index) => (
+                        <Markdown
+                            key={`text-${index}`}
+                            components={mComponents}
+                            className="text-[14px]"
+                        >
+                            {part.text}
+                        </Markdown>
+                    ))
+            ) : (
+                <Markdown components={mComponents} className="text-[14px]">
+                    {item.content}
+                </Markdown>
+            )}
+        </>
+    );
+};
+
+const DisplayTime: React.FC<{timestamp: number}> = ({timestamp}) => {
+    return (
+        <>
+            {' '}
+            {new Date(timestamp * 1000).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            })}
+        </>
+    );
+};
+
+const LoadImage: React.FC<{src: string}> = ({src}) => {
+    const [loadAttempt, setLoadAttempt] = useState<number>(0);
+    const [error, setError] = useState<boolean>(false);
+    const [loaded, setLoaded] = useState<boolean>(false);
+    const [retry, setRetry] = useState<string>(src);
+
+    useEffect(() => {
+        if (error) {
+            const interval = setInterval(() => {
+                setLoadAttempt(prev => prev + 1);
+                setRetry(`${src}?retry=${Date.now()}`);
+            }, 3000);
+
+            return () => clearInterval(interval);
+        }
+    }, [error, 3000, src]);
+
+    return (
+        <div className="relative">
+            {!loaded && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 rounded-md gap-[8px] ">
+                    <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+                    <div className="text-[#a6a6b9] text-[14px]">
+                        Generating the Image, please wait
+                    </div>
+                </div>
+            )}
+            <Image
+                key={retry}
+                src={retry}
+                alt="generate"
+                width={220}
+                height={220}
+                className={`rounded-md object-contain ${loaded ? '' : 'invisible'}`}
+                onLoad={() => {
+                    setError(false);
+                    setLoaded(true);
+                }}
+                onError={() => {
+                    setError(true);
+                    setLoaded(false);
+                }}
+            />
         </div>
     );
 };

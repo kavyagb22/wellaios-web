@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import ChatHistory from './history';
 import UserInputPane from './chatinput';
 import {fetchAPI} from '@/control/api';
-import {LLMMsgType, MsgType} from '@/interface/msg';
+import {LLMMsgType, MsgType, LLMCompositeMsg} from '@/interface/msg';
 import {WebWELLAgent} from '@/interface/agent';
 import {WebChatRequestType, WebRequestType} from '@/interface/api';
 import {useHistory} from '@/control/hooks/localhistory';
@@ -14,6 +14,7 @@ import {getMediaWithDefault} from '@/control/utils/media';
 import {useUnityContext} from 'react-unity-webgl';
 import {Button} from '@blueprintjs/core';
 import Image from 'next/image';
+import PointsToast from '../visual/pointstoast';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
@@ -28,6 +29,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const [activeAudioIndex, setActiveAudioIndex] = useState<number | null>(
             null
         );
+        const [showToast, setShowToast] = useState<boolean>(false);
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
             useUnityContext({
                 loaderUrl: 'unity/unity.loader.js',
@@ -100,11 +102,12 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                 payload.userid = uid;
             }
             const query: WebRequestType = {type: 'web_chat', task: payload};
+
             fetchAPI(query)
                 .then(response => {
                     console.log(response);
                     console.log('emotion:', response.emotion);
-                    const msg = response.content || '...';
+                    const msg: string | LLMCompositeMsg[] = response.content;
                     const assistantMsg: MsgType = {
                         role: 'assistant',
                         emotion: response.emotion,
@@ -198,7 +201,10 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                         >
                             <button
                                 className="border-[1px] border-[#67677466] rounded-[12px] p-[4px]"
-                                onClick={generateRandomAnimation}
+                                onClick={() => {
+                                    generateRandomAnimation();
+                                    setShowToast(true);
+                                }}
                                 disabled={animAction > 0}
                             >
                                 <Image
@@ -209,7 +215,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                                     alt="Attachment icon"
                                 />
                             </button>
-                            <button
+                            {/* <button
                                 className="border-[1px] border-[#6767741A] rounded-[12px] p-[6px]"
                                 onClick={generateRandomAnimation}
                                 disabled={animAction > 0}
@@ -221,8 +227,14 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                                     draggable={false}
                                     alt="Attachment icon"
                                 />
-                            </button>
+                            </button> */}
                         </div>
+                        {showToast && (
+                            <PointsToast
+                                points={5}
+                                onClose={() => setShowToast(false)}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

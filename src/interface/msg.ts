@@ -29,7 +29,7 @@ type UserCoreMsg = {
 
 type AICoreMsg = {
     role: 'assistant';
-    content: string;
+    content: string | LLMCompositeMsg[];
     emotion: 'happy' | 'sad' | 'angry' | 'shy';
 };
 

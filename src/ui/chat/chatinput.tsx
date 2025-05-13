@@ -5,6 +5,7 @@ import {UploadResponse} from '@/interface/image';
 import {MsgType} from '@/interface/msg';
 import Image from 'next/image';
 import {useState, useRef} from 'react';
+import PointsToast from '../visual/pointstoast';
 
 const IMG_URL = 'https://img.wellaios.ai/';
 
@@ -18,6 +19,7 @@ const UserInputPane: React.FC<{
     const [loading, setLoading] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const [attachFile, setAttachFile] = useState<boolean>(false);
+    const [showToast, setShowToast] = useState<boolean>(false);
 
     async function sendButtonClicked() {
         if (loading) return; // Prevent double click
@@ -124,6 +126,7 @@ const UserInputPane: React.FC<{
                                 loading={loading}
                                 msg={msg}
                                 selectedFiles={selectedFiles}
+                                setShowToast={setShowToast}
                             />
                             <MicrophoneButton setMsg={setMsg} />
                         </>
@@ -135,6 +138,12 @@ const UserInputPane: React.FC<{
                         setPreviewUrls={setPreviewUrls}
                         setSelectedFiles={setSelectedFiles}
                         selectedFiles={selectedFiles}
+                    />
+                )}
+                {showToast && (
+                    <PointsToast
+                        points={10}
+                        onClose={() => setShowToast(false)}
                     />
                 )}
             </div>
@@ -261,7 +270,7 @@ const FileTypeButton: React.FC<{
         <div className="flex flex-row justify-between w-full gap-[12px]">
             {fileTypes.map((type, index) => (
                 <button
-                    className={`py-[6px] px-[12px] flex flex-row gap-[4px] items-center justify-center border-[1px] border-[#67677466] rounded-[12px] ${
+                    className={`flex-1 py-[6px] px-[12px] flex flex-row gap-[4px] items-center justify-center border-[1px] border-[#67677466] rounded-[12px] ${
                         type.name === 'Youtube' || type.name === 'Website'
                             ? 'opacity-50 cursor-not-allowed'
                             : ''
@@ -491,11 +500,15 @@ const SendButton: React.FC<{
     loading: boolean;
     msg: string;
     selectedFiles: File[];
-}> = ({sendButtonClicked, loading, msg, selectedFiles}) => {
+    setShowToast: (showToast: boolean) => void;
+}> = ({sendButtonClicked, loading, msg, selectedFiles, setShowToast}) => {
     return (
         <div
             className={`flex justify-center items-center cursor-pointer border-[#67677466] border-[1px] rounded-[12px] ${msg.trim() === '' && selectedFiles.length === 0 ? '' : 'bg-[#012F44]'}`}
-            onClick={sendButtonClicked}
+            onClick={() => {
+                sendButtonClicked();
+                setShowToast(true);
+            }}
         >
             {loading ? (
                 <div className="w-[18px] h-[18px] animate-spin border-2 border-white border-t-transparent rounded-full" />
