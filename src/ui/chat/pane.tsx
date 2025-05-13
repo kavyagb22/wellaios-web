@@ -232,7 +232,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
 const TypingPane: React.FC<{name: string}> = function ({name}) {
     return (
         <div
-            className="h-[25px] text-center text-white pt-[6px] flex justify-center"
+            className="h-[25px] text-center text-black pt-[6px] flex justify-center"
             style={{font: 'normal normal medium 11px/15px Montserrat'}}
         >
             {name} is typing <AnimationDot delay={0} />
