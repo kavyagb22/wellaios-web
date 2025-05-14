@@ -6,13 +6,24 @@ import {MsgType} from '@/interface/msg';
 import Image from 'next/image';
 import {useState, useRef} from 'react';
 import PointsToast from '../visual/pointstoast';
+import SubText from '../visual/subtext';
+import {ATTACHMENT_LIMIT} from '@/config/constants';
 
 const IMG_URL = 'https://img.wellaios.ai/';
 
 const UserInputPane: React.FC<{
     addMessage: (msg: MsgType) => void;
     uid: string | null;
-}> = function ({addMessage, uid}) {
+    setSubTextType: (subTextType: string) => void;
+    setAttachmentSize: (attachmentSize: Number) => void;
+    attachmentSize: Number;
+}> = function ({
+    addMessage,
+    uid,
+    setSubTextType,
+    setAttachmentSize,
+    attachmentSize,
+}) {
     const [msg, setMsg] = useState('');
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -92,10 +103,13 @@ const UserInputPane: React.FC<{
                 <div className="flex flex-row gap-[8px] justify-center items-end">
                     {attachFile ? (
                         <>
+                            {setSubTextType('limit')}
                             <AttachButton
                                 setAttachFile={setAttachFile}
                                 setPreviewUrls={setPreviewUrls}
                                 setSelectedFiles={setSelectedFiles}
+                                setSubTextType={setSubTextType}
+                                setAttachmentSize={setAttachmentSize}
                             />
                         </>
                     ) : (
@@ -128,7 +142,10 @@ const UserInputPane: React.FC<{
                                 selectedFiles={selectedFiles}
                                 setShowToast={setShowToast}
                             />
-                            <MicrophoneButton setMsg={setMsg} />
+                            <MicrophoneButton
+                                setMsg={setMsg}
+                                setSubTextType={setSubTextType}
+                            />
                         </>
                     )}
                 </div>
@@ -138,6 +155,8 @@ const UserInputPane: React.FC<{
                         setPreviewUrls={setPreviewUrls}
                         setSelectedFiles={setSelectedFiles}
                         selectedFiles={selectedFiles}
+                        setAttachmentSize={setAttachmentSize}
+                        attachmentSize={attachmentSize}
                     />
                 )}
                 {showToast && (
@@ -155,7 +174,15 @@ const AttachButton: React.FC<{
     setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
     setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setAttachFile: (attachFile: boolean) => void;
-}> = ({setPreviewUrls, setSelectedFiles, setAttachFile}) => {
+    setSubTextType: (subTextType: string) => void;
+    setAttachmentSize: (attachmentSize: Number) => void;
+}> = ({
+    setPreviewUrls,
+    setSelectedFiles,
+    setAttachFile,
+    setSubTextType,
+    setAttachmentSize,
+}) => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [acceptType, setAcceptType] = useState<string>('');
 
@@ -167,12 +194,23 @@ const AttachButton: React.FC<{
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSubTextType('limit');
         if (!e.target.files || e.target.files.length === 0) return;
         const files = Array.from(e.target.files);
 
-        const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-        setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
-        setSelectedFiles(prevSelected => [...prevSelected, ...files]);
+        // const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+        // setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
+        setSelectedFiles(prevSelected => {
+            const allowed = ATTACHMENT_LIMIT - prevSelected.length;
+            const fileLimit = files.slice(0, allowed);
+            const updatedFiles = [...prevSelected, ...fileLimit];
+            setPreviewUrls(prevUrls => [
+                ...prevUrls,
+                ...fileLimit.map(file => URL.createObjectURL(file)),
+            ]);
+            setAttachmentSize(updatedFiles.length);
+            return updatedFiles;
+        });
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -238,7 +276,10 @@ const AttachButton: React.FC<{
                     </div>
                     <div
                         className="border-[1px] border-[#67677466] rounded-full p-[1px] cursor-pointer"
-                        onClick={() => setAttachFile(false)}
+                        onClick={() => {
+                            setAttachFile(false);
+                            setSubTextType('general');
+                        }}
                     >
                         <Image
                             src="close-icon-white.svg"
@@ -302,8 +343,18 @@ const PreviewList: React.FC<{
     selectedFiles: File[];
     setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
     setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
-}> = ({previewUrls, setPreviewUrls, setSelectedFiles, selectedFiles}) => {
+    setAttachmentSize: (attachmentSize: Number) => void;
+    attachmentSize: Number;
+}> = ({
+    previewUrls,
+    setPreviewUrls,
+    setSelectedFiles,
+    selectedFiles,
+    setAttachmentSize,
+    attachmentSize,
+}) => {
     const handleRemovePreview = (indexToRemove: number) => {
+        setAttachmentSize(Number(attachmentSize) - 1);
         setPreviewUrls(prevUrls =>
             prevUrls.filter((_, index) => index !== indexToRemove)
         );
@@ -415,11 +466,13 @@ const PreviewList: React.FC<{
 
 const MicrophoneButton: React.FC<{
     setMsg: (msg: string) => void;
-}> = ({setMsg}) => {
+    setSubTextType: (subTextType: string) => void;
+}> = ({setMsg, setSubTextType}) => {
     const [msg, setLocalMsg] = useState('');
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
     const handleMicrophoneClick = () => {
+        setSubTextType('audio');
         if (!recognitionRef.current) {
             // Initialize SpeechRecognition only if it's not already initialized
             const SpeechRecognition =
@@ -468,6 +521,7 @@ const MicrophoneButton: React.FC<{
             recognitionRef.current.start();
         } else if (recognitionRef.current && isListening) {
             recognitionRef.current.stop();
+            setSubTextType('general');
         }
     };
     return (

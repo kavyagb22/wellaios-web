@@ -15,6 +15,7 @@ import {useUnityContext} from 'react-unity-webgl';
 import {Button} from '@blueprintjs/core';
 import Image from 'next/image';
 import PointsToast from '../visual/pointstoast';
+import SubText from '../visual/subtext';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
@@ -29,6 +30,9 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
         const [activeAudioIndex, setActiveAudioIndex] = useState<number | null>(
             null
         );
+
+        const [subTextType, setSubTextType] = useState<string>('general');
+        const [attachmentSize, setAttachmentSize] = useState<Number>(0);
         const [showToast, setShowToast] = useState<boolean>(false);
         const {unityProvider, sendMessage, addEventListener, isLoaded} =
             useUnityContext({
@@ -162,7 +166,7 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                     </Button> */}
                 </div>
                 <div className="flex-1 flex items-stretch">
-                    <div className="flex-[7] h-[100%] flex flex-col overflow-hidden relative">
+                    <div className="flex-[7] h-[100%] flex flex-col overflow-hidden relative pb-[6px]">
                         {history !== undefined && (
                             <ChatHistory
                                 history={history}
@@ -178,10 +182,22 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                             />
                         )}
                         {isTyping > 0 && <TypingPane name={agent.meta.name} />}
-                        <UserInputPane addMessage={addUserMessage} uid={uid} />
+                        <UserInputPane
+                            addMessage={addUserMessage}
+                            uid={uid}
+                            setSubTextType={setSubTextType}
+                            setAttachmentSize={setAttachmentSize}
+                            attachmentSize={attachmentSize}
+                        />
+                        <div className="items-center justify-center flex">
+                            <SubText
+                                type={subTextType}
+                                value={attachmentSize}
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex flex-col flex-[3] relative m-[10px]">
+                    <div className="flex flex-col flex-[3] relative m-[10px] pb-[24px]">
                         <UnityPane
                             profile={getMediaWithDefault(
                                 agent.meta.profile,
