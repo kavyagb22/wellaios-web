@@ -1,15 +1,15 @@
 import {useEffect, useState} from 'react';
-import Header from './ui/header';
+// import Header from './ui/header';
 import ChatPane from './ui/chat/pane';
 import {WebRequestType} from './interface/api';
 import {fetchAPI} from './control/api';
 import {WebWELLAgent} from './interface/agent';
-import {DEFAULT_IMAGES} from './config/constants';
-import Image from 'next/image';
+// import {DEFAULT_IMAGES} from './config/constants';
+// import Image from 'next/image';
 import LoadingPage from './loading';
 import {useSearchParams} from 'next/navigation';
 import NoAgentPage from './noagent';
-import {getMediaWithDefault} from './control/utils/media';
+// import {getMediaWithDefault} from './control/utils/media';
 
 const MainPage: React.FC = function () {
     const searchParams = useSearchParams();

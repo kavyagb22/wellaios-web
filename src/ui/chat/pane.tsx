@@ -12,17 +12,20 @@ import UnityPane from '../visual/unity';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
 import {useUnityContext} from 'react-unity-webgl';
-import {Button} from '@blueprintjs/core';
 import Image from 'next/image';
-import PointsToast from '../visual/pointstoast';
-import SubText from '../visual/subtext';
+import PointsToast from '../common/pointstoast';
+import SubText from '../common/subtext';
 
 const ErrorMsg = 'Failed to get a response. Please try again.';
 
 const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
     function ({agent, uid}) {
         const chatEndRef = useRef<HTMLDivElement | null>(null);
-        const {history, addMessage, clearHistory} = useHistory(agent.id, uid);
+        const {
+            history,
+            addMessage,
+            // clearHistory
+        } = useHistory(agent.id, uid);
         const [isTyping, setIsTyping] = useState<number>(0);
         const [talking, setTalking] = useState<number>(0);
         const [emoting, setEmoting] = useState<number>(0);
@@ -206,45 +209,11 @@ const ChatPane: React.FC<{agent: WebWELLAgent; uid: string | null}> =
                             unityProvider={unityProvider}
                             isLoaded={isLoaded}
                         />
-                        {/* ✅ Styled box under UnityPane */}
-                        <div
-                            className="flex flex-row gap-[12px] bg-[#f5f5f5] opacity-100 p-[4px] items-center flex justify-center"
-                            style={{
-                                borderRadius: '0px 0px 16px 16px',
-                                backgroundRepeat: 'repeat',
-                                backgroundOrigin: 'padding-box',
-                            }}
-                        >
-                            <button
-                                className="border-[1px] border-[#67677466] rounded-[12px] p-[4px]"
-                                onClick={() => {
-                                    generateRandomAnimation();
-                                    setShowToast(true);
-                                }}
-                                disabled={animAction > 0}
-                            >
-                                <Image
-                                    src="happy-icon.svg"
-                                    width={24}
-                                    height={24}
-                                    draggable={false}
-                                    alt="Attachment icon"
-                                />
-                            </button>
-                            {/* <button
-                                className="border-[1px] border-[#6767741A] rounded-[12px] p-[6px]"
-                                onClick={generateRandomAnimation}
-                                disabled={animAction > 0}
-                            >
-                                <Image
-                                    src="phone-icon.svg"
-                                    width={24}
-                                    height={24}
-                                    draggable={false}
-                                    alt="Attachment icon"
-                                />
-                            </button> */}
-                        </div>
+                        <RandomAnimationGenerator
+                            setShowToast={setShowToast}
+                            generateRandomAnimation={generateRandomAnimation}
+                            animAction={animAction}
+                        />
                         {showToast && (
                             <PointsToast
                                 points={5}
@@ -285,6 +254,40 @@ const AnimationDot: React.FC<{delay: number}> = function ({delay}) {
         >
             .
         </motion.div>
+    );
+};
+
+const RandomAnimationGenerator: React.FC<{
+    setShowToast: (showToast: boolean) => void;
+    generateRandomAnimation: () => void;
+    animAction: number;
+}> = function ({setShowToast, generateRandomAnimation, animAction}) {
+    return (
+        <div
+            className="flex flex-row gap-[12px] bg-[#f5f5f5] opacity-100 p-[4px] items-center flex justify-center"
+            style={{
+                borderRadius: '0px 0px 16px 16px',
+                backgroundRepeat: 'repeat',
+                backgroundOrigin: 'padding-box',
+            }}
+        >
+            <button
+                className="border-[1px] border-[#67677466] rounded-[12px] p-[4px]"
+                onClick={() => {
+                    generateRandomAnimation();
+                    setShowToast(true);
+                }}
+                disabled={animAction > 0}
+            >
+                <Image
+                    src="happy-icon.svg"
+                    width={24}
+                    height={24}
+                    draggable={false}
+                    alt="Attachment icon"
+                />
+            </button>
+        </div>
     );
 };
 

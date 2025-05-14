@@ -1,11 +1,4 @@
-import {
-    Button,
-    Card,
-    Icon,
-    Popover,
-    Position,
-    Spinner,
-} from '@blueprintjs/core';
+import {Icon, Spinner} from '@blueprintjs/core';
 import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import Markdown, {Components} from 'react-markdown';
 import {ChatRoleType, MsgType} from '@/interface/msg';
@@ -13,8 +6,10 @@ import {WebWELLAgent} from '@/interface/agent';
 import {DEFAULT_IMAGES} from '@/config/constants';
 import {getMediaWithDefault} from '@/control/utils/media';
 import Image from 'next/image';
-import AudioButton from './audiobutton';
+import AudioButton from './input/audiobutton';
 import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
+import CustomPopover from '@/ui/common/custompopover';
+import {displayTime} from '@/control/helper';
 
 const ChatHistory: React.FC<{
     history: MsgType[];
@@ -217,7 +212,7 @@ const ChatItem: React.FC<{
                         </div>
                     </div>
                     <div className="text-[#a6a6b9] text-[12px] mb-[12px] min-w-[50px]">
-                        <DisplayTime timestamp={item.timestamp} />
+                        {displayTime(item.timestamp)}
                     </div>
                 </div>
             ) : (
@@ -231,7 +226,7 @@ const ChatItem: React.FC<{
                         </div>
 
                         <div className="text-[#a6a6b9] text-[12px] text-right self-end">
-                            <DisplayTime timestamp={item.timestamp} />
+                            {displayTime(item.timestamp)}
                         </div>
                     </div>
                 </MsgCard>
@@ -275,19 +270,6 @@ const ShowTextContent: React.FC<{item: MsgType}> = ({item}) => {
                     {item.content}
                 </Markdown>
             )}
-        </>
-    );
-};
-
-const DisplayTime: React.FC<{timestamp: number}> = ({timestamp}) => {
-    return (
-        <>
-            {' '}
-            {new Date(timestamp * 1000).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            })}
         </>
     );
 };
@@ -485,54 +467,6 @@ const LinkButton = function () {
                 </div>
             </button>
         </CustomPopover>
-    );
-};
-
-export const CustomPopover = ({
-    children,
-    tooltip,
-}: {
-    children: React.ReactNode;
-    tooltip: string;
-}) => {
-    const [show, setShow] = useState(false);
-    const timer = useRef<NodeJS.Timeout | null>(null);
-
-    return (
-        <div
-            className="relative inline-block"
-            onMouseEnter={() => {
-                if (timer.current) clearTimeout(timer.current);
-                setShow(true);
-            }}
-            onMouseLeave={() => {
-                timer.current = setTimeout(() => setShow(false), 100);
-            }}
-            onClick={e => {
-                // Optional: prevent click from affecting tooltip visibility
-                e.stopPropagation();
-            }}
-        >
-            {/* Clone children to avoid pointer-events issues */}
-            <div className="pointer-events-auto">{children}</div>
-            {show && (
-                <div className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 pointer-events-none">
-                    <div className="relative">
-                        <div className="bg-[#012F44] text-white text-[10px] px-1 py-1 rounded shadow-lg whitespace-nowrap">
-                            {tooltip}
-                        </div>
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 -translate-y-full">
-                            <svg className="h-3 w-4" viewBox="0 0 20 10">
-                                <polygon
-                                    points="0,10 10,0 20,10"
-                                    fill="#012F44"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
     );
 };
 

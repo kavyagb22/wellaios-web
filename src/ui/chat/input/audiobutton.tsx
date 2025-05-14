@@ -3,8 +3,7 @@ import {AgentTTSRequestType, WebRequestType} from '@/interface/api';
 import Image from 'next/image';
 import {useEffect, useRef, useState} from 'react';
 import {ReactUnityEventParameter} from 'react-unity-webgl/distribution/types/react-unity-event-parameters';
-import {CustomPopover} from './history';
-import {Spinner} from '@blueprintjs/core';
+import CustomPopover from '@/ui/common/custompopover';
 
 const MAX_VOLUME = 100;
 
